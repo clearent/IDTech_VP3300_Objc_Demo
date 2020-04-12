@@ -1,11 +1,3 @@
-//
-//  ViewController.m
-//  VP3300
-//
-//  Created by zhong howard on 13-3-18.
-//  Copyright (c) 2013年 __MyCompanyName__. All rights reserved.
-//
-
 #import "ViewController.h"
 
 @interface ViewController ()
@@ -29,16 +21,23 @@ NSString *publicKey = @"307a301406072a8648ce3d020106092b240303020801010c03620004
 @synthesize txtExpirationDate;
 @synthesize txtCsc;
 
-@synthesize sView;
-@synthesize view1;
-@synthesize view2;
-@synthesize view4;
-@synthesize view5;
-@synthesize view6;
-@synthesize view7;
-@synthesize pcControlPanes;
+@synthesize connectionTypeSelect;
+@synthesize readerUsage;
 @synthesize prompt_doConnection;
 @synthesize prompt_doConnection_Low_Volume;
+@synthesize bluetoothFriendlyNameLabel;
+@synthesize lastFiveDigitsOfDeviceSerialNumberLabel;
+@synthesize bluetoothConnectToFirstFoundLabel;
+@synthesize bluetoothConnect;
+@synthesize bluetoothDisconnect;
+
+@synthesize cardLabel;
+@synthesize expirationDateLabel;
+@synthesize cvvLabel;
+   
+@synthesize useReaderButton;
+@synthesize cancelReaderButton;
+@synthesize manualEntryButton;
 
 //CLEARENT: This is the object you will interact with.
 Clearent_VP3300 *clearentVP3300;
@@ -47,6 +46,8 @@ ClearentVP3300Config *clearentVP3300Config;
 
 //CLEARENT: This object will be used to create transaction tokens for manually entered cards.
 ClearentManualEntry *clearentManualEntry;
+
+ClearentConnection *clearentConnection;
 
 static bool runSampleAsRefund = NO;
 
@@ -104,6 +105,10 @@ static int _lcdDisplayMode = 0;
 //deprecated
 }
 
+- (void) dataInOutMonitor:(NSData*)data  incoming:(BOOL)isIncoming{
+    NSLog([NSString stringWithFormat:@"DATA INOUT %@: %@",isIncoming?@"IN":@"OUT",data.description]);
+}
+
 - (void) plugStatusChange:(BOOL)deviceInserted{
     if (deviceInserted) {
         //[self appendMessageToResults: @"device Attached."];
@@ -122,15 +127,8 @@ static int _lcdDisplayMode = 0;
 }
 
 -(void)isReady{
-    connectedLabel.text = @"READY";
-    [self appendMessageToResults:@"Ready"];
-    
-   //[clearentVP3300 adjustBluetoothAdvertisingInterval];
-    
-  //  [clearentVP3300 setAutoConfiguration:true];
-  //  [clearentVP3300 setContactlessAutoConfiguration:true];
-  //  [clearentVP3300 applyClearentConfiguration];
-    
+    //connectedLabel.text = @"READY";
+    //connectedLabel.backgroundColor = UIColor.systemGreenColor;
 }
 
 -(void) beepbeep {
@@ -145,11 +143,13 @@ static int _lcdDisplayMode = 0;
 
 -(void) deviceConnected {
     connectedLabel.text = @"Connected";
+    connectedLabel.backgroundColor = UIColor.systemGreenColor;
 }
 
 -(void) deviceDisconnected {
     NSLog(@"DisConnt --");
-    connectedLabel.text = @"Disconnect";
+    connectedLabel.text = @"Disconnected";
+    connectedLabel.backgroundColor = UIColor.lightGrayColor;
 }
 
 -(void) eventFunctionICC: (Byte) nICC_Attached{
@@ -165,30 +165,36 @@ static int _lcdDisplayMode = 0;
 
 //deprecated..
 - (void) deviceMessage:(NSString*) message {
+    
     NSLog([NSString stringWithFormat:@"DEVICEMESSAGE %@", message ]);
+    
 }
 
 - (void) feedback:(ClearentFeedback *)clearentFeedback {
     
-    if(clearentFeedback.feedBackMessageType == FEEDBACK_USER_ACTION) {
-        [self appendMessageToResults:[NSString stringWithFormat:@"USER %@", clearentFeedback.message ]];
-    } else {
-        [self appendMessageToResults:[NSString stringWithFormat:@"FYI %@", clearentFeedback.message ]];
-    }
+    [self appendMessageToResults:[NSString stringWithFormat:@"%@", clearentFeedback.message ]];
 
 }
 
-//We can always retain the device uuid and pass it back it.
-static NSString *connectedDeviceId = nil;
+//When you set up the ClearentConnection object you can choose to disable the flag that will connect to the first one found.
+//if you also do not provide a specific bluetooth friendly name, last 5 digits of device serial number, or a deviceID,  the bluetooth scan will
+//search for all bluetooth devices that start with 'IDTECH' and send them back.
+//A ClearentBluetoothDevice gives you the bluetooth friendly name and the device UUID. You can present the friednly names to your user
+//so they can select the one to use. When they do so you can then pass this deviceId in the ClearentConnection object on your subsequent request.
 
 - (void) bluetoothDevices:(NSArray<ClearentBluetoothDevice> *)bluetoothDevices {
-    if(bluetoothDevices != nil) {
+    if(bluetoothDevices != nil && [bluetoothDevices count] > 0) {
+        if(!clearentConnection.connectToFirstBluetoothFound)  {
+            [self appendMessageToResults:@"Bluetooth Search Results"];
+        }
         for (ClearentBluetoothDevice* clearentBluetoothDevice in bluetoothDevices) {
             if(clearentBluetoothDevice.connected) {
-                connectedDeviceId = clearentBluetoothDevice.deviceId;
+                connectedLabel.text = clearentBluetoothDevice.friendlyName;
             }
-            [self appendMessageToResults:[NSString stringWithFormat:@"Found bluetooth device %@ %@ %@ ", clearentBluetoothDevice.friendlyName,
+            if(!clearentConnection.connectToFirstBluetoothFound)  {
+                [self appendMessageToResults:[NSString stringWithFormat:@"Found bluetooth device %@ %@ %@ ", clearentBluetoothDevice.friendlyName,
                                            clearentBluetoothDevice.deviceId, clearentBluetoothDevice.connected ? @" CONNECTED" : @" "]];
+            }
         }
     }
 }
@@ -215,9 +221,7 @@ static NSString *connectedDeviceId = nil;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
     
-    //init alert views
     prompt_doConnection = [[UIAlertView alloc]
                            initWithTitle:@"VP3300"
                            message:@"Device detected in headphone jack. Try connecting it?"
@@ -229,54 +233,8 @@ static NSString *connectedDeviceId = nil;
                            message:@"Device detected in headphone jack. Try connecting it? WARNING: Low volume detected. Please increase headphone volume to MAXIMUM before proceeding with connection attempt."
                            delegate:self
                            cancelButtonTitle:@"Cancel"
-                           otherButtonTitles:@"OK",nil];
+                           otherButtonTitles:@"OK",nil];    
     
-    //for iPhone
-    if (0 == g_IOS_Type) {
-        CGRect frame = self.sView.frame;
-        frame.size.width = [UIScreen mainScreen].bounds.size.width;
-        CGSize contentSize = frame.size;
-        contentSize.width *= 6;
-        self.sView.contentSize = contentSize;
-        
-        // add to scroll view
-        frame.origin.y = 0;
-        frame.origin.x = frame.size.width * 5   ;
-        self.view7.frame = frame;
-        [self.sView addSubview: self.view7];
-        
-        frame.origin.y = 0;
-        frame.origin.x = frame.size.width * 4   ;
-        self.view2.frame = frame;
-        [self.sView addSubview: self.view2];
-        
-        
-        frame.origin.y = 0;
-        frame.origin.x = frame.size.width * 3   ;
-        self.view6.frame = frame;
-        [self.sView addSubview: self.view6];
-        
-        
-        frame.origin.y = 0;
-        frame.origin.x = frame.size.width * 2   ;
-        self.view5.frame = frame;
-        [self.sView addSubview: self.view5];
-        
-        
-        frame.origin.y = 0;
-        frame.origin.x = frame.size.width * 1;
-        self.view4.frame = frame;
-        [self.sView addSubview: self.view4];
-        
-        frame.origin.y = 0;
-        frame.origin.x = frame.size.width * 0;
-        self.view1.frame = frame;
-        [self.sView addSubview: self.view1];
-        
-        self.pcControlPanes.numberOfPages = 5;
-        self.pcControlPanes.currentPage = 0;
-    }
-
 #ifndef __i386__
     
     [self initClearent];
@@ -311,24 +269,40 @@ static NSString *connectedDeviceId = nil;
 - (void) initSettings {
     
     runSampleAsRefund = NO;
-    [bluetoothFriendlyName setText: [[IDT_VP3300 sharedController] device_getBLEFriendlyName]];
-    
+    txtExpirationDate.hidden = YES;
+    txtCsc.hidden = YES;
+    txtCreditCardNumber.hidden = YES;
+    expirationDateLabel.hidden = YES;
+    cardLabel.hidden = YES;
+    cvvLabel.hidden = YES;
+    manualEntryButton.hidden = YES;
+    useReaderButton.hidden = NO;
+    cancelReaderButton.hidden = NO;
+
 }
 
 -(void) exampleManualEntry {
     
-    NSData *result;
+    ClearentCard *clearentCard = [self createManualCardEntryRequest];
     
-    ClearentCard *clearentCard = [[ClearentCard alloc] init];
-    clearentCard.card = txtCreditCardNumber;
-    clearentCard.expirationDateMMYY= txtExpirationDate;
-    clearentCard.csc= txtCsc;
     [clearentManualEntry createTransactionToken:clearentCard];
     
 }
 
+- (ClearentCard*) createManualCardEntryRequest {
+    ClearentCard *clearentCard = [[ClearentCard alloc] init];
+    clearentCard.card = [txtCreditCardNumber text];
+    clearentCard.expirationDateMMYY = [txtExpirationDate text];
+    clearentCard.csc= [txtCsc text];
+    clearentCard.softwareType = @"Clearent Objc IDTech Demo";
+    clearentCard.softwareTypeVersion = @"V2.0";
+    return clearentCard;
+}
+ 
 -(void) successfulTransactionToken:(NSString*) jsonString {
     //deprecated
+    NSLog(@"%@", jsonString);
+    
 }
 
 - (void) successTransactionToken:(ClearentTransactionToken*) clearentTransactionToken {
@@ -337,6 +311,7 @@ static NSString *connectedDeviceId = nil;
     NSLog(@"%@",clearentTransactionToken.cvm);
     NSLog(@"%@",clearentTransactionToken.lastFour);
     NSLog(@"%@",clearentTransactionToken.trackDataHash);
+    NSLog(@"%@",clearentTransactionToken.cardType);
     [self exampleUseJwtToRunPaymentTransaction:clearentTransactionToken.jwt];
 }
 
@@ -351,8 +326,8 @@ static NSString *connectedDeviceId = nil;
       targetUrl = [NSString stringWithFormat:@"%@/rest/v2/mobile/transactions/sale", baseUrl];
     }
     
-    
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    
     //Create a sample json request.
     NSData *postData;
     if(runSampleAsRefund) {
@@ -373,7 +348,7 @@ static NSString *connectedDeviceId = nil;
     //add the JWT as a header.
     [request setValue:jwt forHTTPHeaderField:@"mobilejwt"];
     [request setURL:[NSURL URLWithString:targetUrl]];
-    //Do the Post. Report the result to your user (this example sends the message to the console on the demo app (lower left corner of ui)).
+    
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:
       ^(NSData * _Nullable data,
         NSURLResponse * _Nullable response,
@@ -400,12 +375,14 @@ static NSString *connectedDeviceId = nil;
               }
              
               [self appendMessageToResults:transactionResult];
-              [self exampleRequestReceipt:transactionId];
-              NSLog(@"Clearent Transaction : %s", responseStr);
+              if(self.txtReceiptEmailAddress.text != nil) {
+                  [self exampleRequestReceipt:transactionId];
+              }
+        
           } else {
               NSString *errorResult;
               NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-              NSLog(@"Clearent Error : %s", responseStr);
+             
               NSDictionary *errorResponseDictionary = [self jsonAsDictionary:responseStr];
               if ([errorResponseDictionary objectForKey:@"payload"]) {
                   NSDictionary *payload = [errorResponseDictionary objectForKey:@"payload"];
@@ -433,6 +410,7 @@ static NSString *connectedDeviceId = nil;
                   }
               } else {
                       NSLog(@"Response not handled : %s", responseStr);
+                      [self appendMessageToResults:@"Failed to handle response"];
                   }
               }
           
@@ -440,25 +418,35 @@ static NSString *connectedDeviceId = nil;
 }
 
 - (NSData*) exampleClearentTransactionRequestAsJson  {
+    
     NSString *usedAmount = @"1.00";
+    
     if(txtAmount.text != nil) {
         usedAmount = txtAmount.text;
     }
+    
     NSDictionary* dict = @{@"amount":usedAmount,@"type":@"SALE",  @"software-type": @"ios Idtech Demo App",
                            @"software-type-version":@"1"};
+    
     return [NSJSONSerialization dataWithJSONObject:dict
                                            options:NSJSONWritingPrettyPrinted error:nil];
+    
 }
 
 - (NSData*) exampleRefundAsJson  {
+    
     NSString *usedAmount = @"1.00";
+    
     if(txtAmount.text != nil) {
         usedAmount = txtAmount.text;
     }
+    
     NSDictionary* dict = @{@"amount":usedAmount,@"type":@"REFUND",  @"software-type": @"ios Idtech Demo App",
                            @"software-type-version":@"1"};
+    
     return [NSJSONSerialization dataWithJSONObject:dict
                                            options:NSJSONWritingPrettyPrinted error:nil];
+    
 }
 
 - (NSDictionary *)jsonAsDictionary:(NSString *)stringJson {
@@ -475,52 +463,57 @@ static NSString *connectedDeviceId = nil;
 }
 
 - (void) exampleRequestReceipt:(NSString*)transactionId {
+    
     if(transactionId == nil) {
         return;
     }
-    NSLog(@"%@Request a receipt for transaction...",transactionId);
-    //Construct the url
+    
     NSString *targetUrl = [NSString stringWithFormat:@"%@/rest/v2/receipts", baseUrl];
 
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     NSDictionary* dict;
-    if(txtReceiptEmailAddress.text == nil) {
-        dict = @{@"id":transactionId,@"email-address":@"bnaslund@clearent.com"};
-    } else {
-        dict = @{@"id":transactionId,@"email-address":txtReceiptEmailAddress.text};
-    }
+    
+    dict = @{@"id":transactionId,@"email-address":txtReceiptEmailAddress.text};
+    
     NSData *postData = [NSJSONSerialization dataWithJSONObject:dict
                                            options:NSJSONWritingPrettyPrinted error:nil];
-    //Build a url request. It's a POST.
+    
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
-    //Use json
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
-    //add a test apikey as a header
+    //add a test apikey as a header. Do not hard code api keys in your app !
     [request setValue:@"24425c33043244778a188bd19846e860" forHTTPHeaderField:@"api-key"];
 
     [request setURL:[NSURL URLWithString:targetUrl]];
-    //Do the Post. Report the result to your user (this example sends the message to the console on the demo app (lower left corner of ui)).
+    
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:
       ^(NSData * _Nullable data,
         NSURLResponse * _Nullable response,
         NSError * _Nullable error) {
+        
           //Clearent returns an object that is defined the same for both successful and unsuccessful calls with one exception. The 'payload' can be different.
           NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
           NSLog(@"Clearent Transaction Response status code: %ld", (long)[httpResponse statusCode]);
+        
           if(error != nil) {
+              
               [self appendMessageToResults:error.description];
+              
           } else if(data != nil) {
+              
               NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
               NSDictionary *successfulResponseDictionary = [self jsonAsDictionary:responseStr];
               NSDictionary *payload = [successfulResponseDictionary objectForKey:@"payload"];
               NSDictionary *receipt = [payload objectForKey:@"receipt-response"];
               NSString *emailAddress = [receipt objectForKey:@"email-address"];
-              NSString *receiptResult = [NSString stringWithFormat:@"Receipt emailed to %@", emailAddress];
-              [self appendMessageToResults:receiptResult];
-              NSLog(@"Clearent Receipt Request Response : %s", responseStr);
+              
+              if(emailAddress != nil) {
+                  NSString *receiptResult = [NSString stringWithFormat:@"Receipt emailed to %@", emailAddress];
+                  [self appendMessageToResults:receiptResult];
+              }
+
           }
       }] resume];
 }
@@ -530,72 +523,124 @@ static NSString *connectedDeviceId = nil;
      [super viewDidUnload];
 }
 
-- (IBAction) f_searchForBLE:(id)sender{
+- (IBAction) f_searchForBLE: (id) sender {
         
-    ClearentConnection *clearentConnection = [self createClearentConnection];
+    clearentConnection = [self createClearentConnection];
     
     [clearentVP3300 startConnection:clearentConnection];
     
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)sender {
-    if (sender != self.sView)
-        return;
+- (IBAction) connectionTypeChanged: (id) sender {
     
-    //for iPhone
-    if (0 == g_IOS_Type) {
-        //update UIPageControl object
-        CGFloat pageWidth = self.sView.frame.size.width;
-        int page = floor((self.sView.contentOffset.x + pageWidth / 2) / pageWidth);
-        self.pcControlPanes.currentPage = page;
+    switch (connectionTypeSelect.selectedSegmentIndex) {
+    case 0:
+        bluetoothConnectToFirstFound.hidden = NO;
+        lastFiveDigitsOfDeviceSerialNumber.hidden = NO;
+        bluetoothFriendlyName.hidden = NO;
+        bluetoothConnectToFirstFoundLabel.hidden = NO;
+        lastFiveDigitsOfDeviceSerialNumberLabel.hidden = NO;
+        bluetoothFriendlyNameLabel.hidden = NO;
+        bluetoothConnect.hidden = NO;
+        bluetoothDisconnect.hidden = NO;
+        break;
+    case 1:
+        bluetoothConnectToFirstFound.hidden = YES;
+        lastFiveDigitsOfDeviceSerialNumber.hidden = YES;
+        bluetoothFriendlyName.hidden = YES;
+        bluetoothConnectToFirstFoundLabel.hidden = YES;
+        lastFiveDigitsOfDeviceSerialNumberLabel.hidden = YES;
+        bluetoothFriendlyNameLabel.hidden = YES;
+        bluetoothConnect.hidden = YES;
+        bluetoothDisconnect.hidden = YES;
+        break;
+    default:
+        break;
     }
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
+- (IBAction) readerUsageChanged: (id) sender {
+    
+    switch (readerUsage.selectedSegmentIndex) {
+    case 0:
+        txtExpirationDate.hidden = YES;
+        txtCsc.hidden = YES;
+        txtCreditCardNumber.hidden = YES;
+        expirationDateLabel.hidden = YES;
+        cardLabel.hidden = YES;
+        cvvLabel.hidden = YES;
+        manualEntryButton.hidden = YES;
+        useReaderButton.hidden = NO;
+        cancelReaderButton.hidden = NO;
+        break;
+    case 1:
+        txtExpirationDate.hidden = NO;
+        txtCsc.hidden = NO;
+        txtCreditCardNumber.hidden = NO;
+        expirationDateLabel.hidden = NO;
+        cardLabel.hidden = NO;
+        cvvLabel.hidden = NO;
+        manualEntryButton.hidden = NO;
+        useReaderButton.hidden = YES;
+        cancelReaderButton.hidden = YES;
+        break;
+    default:
+        break;
+    }
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)sender {
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    
     [super viewDidAppear:animated];
     
-    NSLog(@"--viewDidAppear");
     BOOL b = [clearentVP3300 isConnected];
-    if(b==YES)
-    {
+    
+    if(b==YES) {
         [self deviceConnected];
-        //[self appendMessageToResults:@"[[VP3300 sharedController] Open Success]"];
-    }
-    else
-    {
+    } else {
         [self deviceDisconnected];
-        //[self appendMessageToResults:@"Reader failed to connect. Check for any device messages. If you see a message RETURN_CODE_LOW_VOLUME turn up the Headphones volume and reconnect the reader."];
     }
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
+- (BOOL) shouldAutorotateToInterfaceOrientation: (UIInterfaceOrientation) interfaceOrientation {
+    
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
         return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
     } else {
         return YES;
     }
+    
 }
 
 
 #pragma mark - spec methods
 
-
-- (IBAction) f_disconnectBluetooth:(id)sender
-{
-    [clearentVP3300 device_disconnectBLE];
+- (IBAction) f_manualEntry:(id)sender{
+    
+    [self exampleManualEntry];
+    
 }
 
-- (IBAction) f_cancelTrans:(id)sender{
+- (IBAction) f_disconnectBluetooth: (id) sender {
+    
+    [clearentVP3300 device_disconnectBLE];
+    
+}
+
+- (IBAction) f_cancelTrans: (id) sender {
+    
     RETURN_CODE rt = [clearentVP3300  device_cancelTransaction];
-    if (RETURN_CODE_DO_SUCCESS == rt)
-    {
+    
+    if (RETURN_CODE_DO_SUCCESS == rt) {
         [self appendMessageToResults:@"Cancel Transaction Successful"];
-    }
-    else{
+    } else {
         [self displayUpRet2: @"Cancel Transaction Failed " returnValue: rt];
     }
+    
 }
 
 - (IBAction) f_startAnyTransaction:(id)sender{
@@ -616,7 +661,7 @@ static NSString *connectedDeviceId = nil;
     
     ClearentPayment *clearentPayment = [self createClearentPayment];
     
-    ClearentConnection *clearentConnection = [self createClearentConnection];
+    clearentConnection = [self createClearentConnection];
     
     ClearentResponse *clearentResponse = [clearentVP3300 startTransaction:clearentPayment clearentConnection:clearentConnection];
 
@@ -636,28 +681,18 @@ static NSString *connectedDeviceId = nil;
 
 - (ClearentPayment*) createClearentPayment {
     
-    ClearentPayment *clearentPayment = [[ClearentPayment alloc] init];
+    ClearentPayment *clearentPayment = [[ClearentPayment alloc] initSale];
     
     //Provide the amount when working with the 3 in 1 solution. The amount is required for contactless and since you don't know how they will interact with the reader
     //it's best to just provide the amount every time. If you are not using contactless and are using the 2 in 1 reader interface option with the ClearentConnection
     //you can pass a zero. This is only for creating the transation token (jwt). When you run the payment through the mobile gateway endpoint you will need to provide an
     //amount.
     [clearentPayment setAmount:[self getAmount]];
-    //Idtech other amount option to maintain the interface but is not used with the Clearent solution.
-    clearentPayment.amtOther = 0;
-    //type 0 means SALE
-    clearentPayment.type = 0;
-    //control the length of time before you want the transaction to timeout.
-    clearentPayment.timeout = 30;
-    //tags are an advanced option and are only here in case it is needed when interacting with the IdTech framework.
-    clearentPayment.tags = nil;
+    
     //The email address is an optional field because credit card certification states you are suppose to print a receipt for the customer if there is an offline
     //decline. In this case we will email them a recent.
     clearentPayment.emailAddress = txtReceiptEmailAddress.text;
-    //These are also IdTech interface fields which might be useful depending on your needs.
-    clearentPayment.fallback = true;
-    clearentPayment.forceOnline = false;
-    
+   
     return clearentPayment;
 }
 
@@ -669,19 +704,23 @@ static NSString *connectedDeviceId = nil;
     
     //The bluetooth solution also uses the service UUID of 1820 as a filter since all IDTech readers are configured to use it.
     
-    ClearentConnection *clearentConnection = [ClearentConnection createDefaultClearentConnection];
+    ClearentConnection *clearentConnection;
+    if(connectionTypeSelect.selectedSegmentIndex == 0) {
+        clearentConnection =  [[ClearentConnection alloc] initBluetooth];
+    } else {
+        clearentConnection =  [[ClearentConnection alloc] initAudioJack];
+    }
     
-    //TODO switch back and forth between bluetooth and audio jack.
-    
-    if(bluetoothConnectToFirstFound) {
+    if(bluetoothConnectToFirstFound.on) {
         clearentConnection.connectToFirstBluetoothFound = true;
     } else {
-         clearentConnection.connectToFirstBluetoothFound = false;
+        clearentConnection.connectToFirstBluetoothFound = false;
     }
     
     //Most of the time you will never use this. But you do have the ability to change the friendly name of the device and if you do you will need to provide
     //the full friendly name
     clearentConnection.fullFriendlyName = [bluetoothFriendlyName text];
+    
     //if you have a reader in hand and can provide the last 5 digits of the device serial number the framework will add the IdTech friendly name for you
     //(IDTECH-VP3300-)
     clearentConnection.lastFiveDigitsOfDeviceSerialNumber = [lastFiveDigitsOfDeviceSerialNumber text];
@@ -690,7 +729,9 @@ static NSString *connectedDeviceId = nil;
 }
 
 - (double) getAmount {
+    
     double amount;
+    
     if(txtAmount.text != nil && ![txtAmount.text isEqualToString:@""]) {
         NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
         formatter.numberStyle = NSNumberFormatterDecimalStyle;
@@ -702,6 +743,7 @@ static NSString *connectedDeviceId = nil;
         amount = 1.00;
         txtAmount.text = @"1.00";
     }
+    
     return amount;
 }
 

@@ -40,7 +40,11 @@ typedef NS_ENUM(NSUInteger, READER_INTERFACE_MODE) {
 - (CONNECTION_TYPE*) connectionType;
 - (READER_INTERFACE_MODE*) readerInterfaceMode;
 - (NSString*) createLogMessage;
+- (BOOL) isDeviceKnown;
 - (BLUETOOTH_ADVERTISING_INTERVAL*) bluetoothAdvertisingInterval;
+
+- (instancetype) initBluetooth;
+- (instancetype) initAudioJack;
 
 @end
 
@@ -56,7 +60,10 @@ typedef NS_ENUM(NSUInteger, READER_INTERFACE_MODE) {
 @property (nonatomic) BLUETOOTH_ADVERTISING_INTERVAL bluetoothAdvertisingInterval;
 
 - (NSString*) createLogMessage;
-+ (instancetype) createDefaultClearentConnection;
+- (BOOL) isDeviceKnown;
 + (NSString*) createFullIdTechFriendlyName:(NSString*) lastFiveDigitsOfDeviceSerialNumber;
+
+- (instancetype) initBluetooth;
+- (instancetype) initAudioJack;
 
 @end

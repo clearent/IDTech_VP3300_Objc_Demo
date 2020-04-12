@@ -9,8 +9,8 @@
 
 typedef NS_ENUM(NSUInteger, FEEDBACK_MESSAGE_TYPE) {
     FEEDBACK_USER_ACTION = 0,
-    FEEDBACK_ERROR = 1,
-    FEEDBACK_INFO = 2,
+    FEEDBACK_INFO = 1,
+    FEEDBACK_BLUETOOTH = 2,
     FEEDBACK_TYPE_UNKNOWN = NSUIntegerMax
 };
 
@@ -26,4 +26,8 @@ typedef NS_ENUM(NSUInteger, FEEDBACK_MESSAGE_TYPE) {
 @property (nonatomic) NSString *message;
 @property (nonatomic) FEEDBACK_MESSAGE_TYPE feedBackMessageType;
 @property (nonatomic) int returnCode;
+
+- (instancetype) initBluetooth:(NSString*) message;
+- (instancetype) initUserAction:(NSString*) message;
+- (instancetype) initInfo:(NSString*) message;
 @end

@@ -14,6 +14,7 @@
 - (NSString*) cvm;
 - (NSString*) lastFour;
 - (NSString*) trackDataHash;
+- (NSString*) cardType;
 
 - (instancetype) initWithJson:(NSString*)jsonString;
 
@@ -25,6 +26,7 @@
 @property (nonatomic) NSString *cvm;
 @property (nonatomic) NSString *lastFour;
 @property (nonatomic) NSString *trackDataHash;
+@property (nonatomic) NSString *cardType;
 
 - (instancetype) initWithJson:(NSString*)jsonString;
 

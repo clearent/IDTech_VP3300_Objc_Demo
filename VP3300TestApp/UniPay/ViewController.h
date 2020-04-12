@@ -24,24 +24,27 @@
     IBOutlet UITextField *txtCreditCardNumber;
     IBOutlet UITextField *txtExpirationDate;
     IBOutlet UITextField *txtCsc;
+    IBOutlet UISegmentedControl *connectionTypeSelect;
+    IBOutlet UISegmentedControl *readerUsage;
     
-
+    IBOutlet UILabel *bluetoothFriendlyNameLabel;
+    IBOutlet UILabel *lastFiveDigitsOfDeviceSerialNumberLabel;
+    IBOutlet UILabel *bluetoothConnectToFirstFoundLabel;
+    
+    IBOutlet UILabel *cardLabel;
+    IBOutlet UILabel *expirationDateLabel;
+    IBOutlet UILabel *cvvLabel;
+    
+    IBOutlet UIButton *bluetoothConnect;
+    IBOutlet UIButton *bluetoothDisconnect;
+    
+    IBOutlet UIButton *useReaderButton;
+    IBOutlet UIButton *cancelReaderButton;
+    IBOutlet UIButton *manualEntryButton;
 }
 
-//only for iPhone
-@property (strong, nonatomic) IBOutlet UIScrollView *sView;
-@property (strong, nonatomic) IBOutlet UIView *view1;
-@property (strong, nonatomic) IBOutlet UIView *view2;
-@property (strong, nonatomic) IBOutlet UIView *view4;
-@property (strong, nonatomic) IBOutlet UIView *view5;
-@property (strong, nonatomic) IBOutlet UIView *view6;
-@property (strong, nonatomic) IBOutlet UIView *view7;
-@property (strong, nonatomic) IBOutlet UIPageControl *pcControlPanes;
-
-//for all
 @property(nonatomic, strong) UITextView *resultsTextView;
 @property(nonatomic, strong) UILabel *connectedLabel;
-
 @property(nonatomic, strong) UITextField *bluetoothFriendlyName;
 @property(nonatomic, strong) UITextField *lastFiveDigitsOfDeviceSerialNumber;
 @property(nonatomic, strong) UISwitch *bluetoothConnectToFirstFound;
@@ -53,9 +56,27 @@
 @property(nonatomic, strong) UITextField *txtCreditCardNumber;
 @property(nonatomic, strong) UITextField *txtExpirationDate;
 @property(nonatomic, strong) UITextField *txtCsc;
+@property(nonatomic, strong) UISegmentedControl *connectionTypeSelect;
+@property(nonatomic, strong) UISegmentedControl *readerUsage;
+@property(nonatomic, strong) UILabel *bluetoothFriendlyNameLabel;
+@property(nonatomic, strong) UILabel *lastFiveDigitsOfDeviceSerialNumberLabel;
+@property(nonatomic, strong) UILabel *bluetoothConnectToFirstFoundLabel;
+
+@property(nonatomic, strong) UILabel *cardLabel;
+@property(nonatomic, strong) UILabel *expirationDateLabel;
+@property(nonatomic, strong) UILabel *cvvLabel;
+
+@property(nonatomic, strong) UIButton *bluetoothConnect;
+@property(nonatomic, strong) UIButton *bluetoothDisconnect;
+
+@property(nonatomic, strong) UIButton *useReaderButton;
+@property(nonatomic, strong) UIButton *cancelReaderButton;
+@property(nonatomic, strong) UIButton *manualEntryButton;
 
 - (IBAction) f_cancelTrans:(id)sender;
 - (IBAction) DoKeyboardOff:(id)sender;
 - (IBAction) f_startAnyTransaction:(id)sender;
-
+- (IBAction) f_manualEntry:(id)sender;
+- (IBAction) connectionTypeChanged:(id)sender;
+- (IBAction) readerUsageChanged:(id)sender;
 @end
