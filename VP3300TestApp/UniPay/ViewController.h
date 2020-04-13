@@ -10,7 +10,9 @@
 //CLEARENT make the view a Clearent_Public_IDTech_VP3300_Delegate
 //CLEARENT make the view a ClearentManualEntryDelegate
 
-@interface ViewController : UIViewController<UIAlertViewDelegate,Clearent_Public_IDTech_VP3300_Delegate, UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDelegate>
+@interface ViewController : UIViewController<UIAlertViewDelegate,Clearent_Public_IDTech_VP3300_Delegate,
+UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDelegate, UITableViewDelegate,UITableViewDataSource>
+
 {
     
     IBOutlet UITextView *resultsTextView;
@@ -41,6 +43,7 @@
     IBOutlet UIButton *useReaderButton;
     IBOutlet UIButton *cancelReaderButton;
     IBOutlet UIButton *manualEntryButton;
+    
 }
 
 @property(nonatomic, strong) UITextView *resultsTextView;

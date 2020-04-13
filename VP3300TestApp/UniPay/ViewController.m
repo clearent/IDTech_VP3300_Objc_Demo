@@ -197,6 +197,7 @@ static int _lcdDisplayMode = 0;
             }
         }
     }
+    
 }
 
 - (void) handleManualEntryError:(NSString*)message{
@@ -241,7 +242,37 @@ static int _lcdDisplayMode = 0;
     
 #endif
     [self initSettings];
+    
+
+    
 }
+
+//- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+//    return 1;
+//}
+//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+//{
+//    return bluetoothFriendlyNameFoundList.count;
+//}
+//
+//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    static NSString *cellIdentifier = @"cellIdentifier";
+//
+//    UITableViewCell *cell = [self.bluetoothList dequeueReusableCellWithIdentifier:cellIdentifier];
+//
+//    if(cell == nil) {
+//        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
+//
+//    }
+//    cell.textLabel.text =  [bluetoothFriendlyNameFoundList objectAtIndex:indexPath.row];
+//    return cell;
+//}
+//
+//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+//{
+//    NSLog(@"title of cell %@", [bluetoothFriendlyNameFoundList objectAtIndex:indexPath.row]);
+//}
 
 - (void) initClearent {
     

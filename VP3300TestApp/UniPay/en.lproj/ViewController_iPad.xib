@@ -41,7 +41,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7">
-                    <rect key="frame" x="27" y="605" width="495" height="356"/>
+                    <rect key="frame" x="27" y="605" width="398" height="356"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -58,7 +58,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="16">
-                    <rect key="frame" x="478" y="619" width="29" height="31"/>
+                    <rect key="frame" x="380" y="613" width="29" height="31"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="boldSystem" size="button"/>
                     <state key="normal" image="btnClear.png">
@@ -269,18 +269,6 @@
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
-                <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ODr-vz-NRz">
-                    <rect key="frame" x="27" y="285" width="229" height="32"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <rect key="contentStretch" x="0.14999999999999999" y="0.0" width="1" height="1"/>
-                    <segments>
-                        <segment title="Reader"/>
-                        <segment title="Manual Entry"/>
-                    </segments>
-                    <connections>
-                        <action selector="readerUsageChanged:" destination="-1" eventType="valueChanged" id="ZS3-RR-O3W"/>
-                    </connections>
-                </segmentedControl>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6XG-fI-rr6">
                     <rect key="frame" x="528" y="178" width="189" height="61"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -299,6 +287,18 @@
                         <action selector="f_disconnectBluetooth:" destination="-1" eventType="touchUpInside" id="GGT-vB-lBn"/>
                     </connections>
                 </button>
+                <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ODr-vz-NRz">
+                    <rect key="frame" x="27" y="285" width="229" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <rect key="contentStretch" x="0.14999999999999999" y="0.0" width="1" height="1"/>
+                    <segments>
+                        <segment title="Reader"/>
+                        <segment title="Manual Entry"/>
+                    </segments>
+                    <connections>
+                        <action selector="readerUsageChanged:" destination="-1" eventType="valueChanged" id="ZS3-RR-O3W"/>
+                    </connections>
+                </segmentedControl>
             </subviews>
             <color key="backgroundColor" systemColor="systemGray6Color" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackOpaque"/>
