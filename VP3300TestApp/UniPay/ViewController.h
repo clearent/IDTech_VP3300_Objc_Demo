@@ -11,12 +11,13 @@
 //CLEARENT make the view a ClearentManualEntryDelegate
 
 @interface ViewController : UIViewController<UIAlertViewDelegate,Clearent_Public_IDTech_VP3300_Delegate,
-UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDelegate, UITableViewDelegate,UITableViewDataSource>
+UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDelegate, UIPickerViewDelegate, UIPickerViewDataSource>
 
 {
     
     IBOutlet UITextView *resultsTextView;
     IBOutlet UILabel *connectedLabel;
+    IBOutlet UILabel *bluetoothSearchResultsLabel;
     IBOutlet UITextField *bluetoothFriendlyName;
     IBOutlet UISwitch *bluetoothConnectToFirstFound;
     IBOutlet UITextField *lastFiveDigitsOfDeviceSerialNumber;
@@ -44,10 +45,13 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
     IBOutlet UIButton *cancelReaderButton;
     IBOutlet UIButton *manualEntryButton;
     
+    IBOutlet UIPickerView *bluetoothDevicePicker;
+    
 }
 
 @property(nonatomic, strong) UITextView *resultsTextView;
 @property(nonatomic, strong) UILabel *connectedLabel;
+@property(nonatomic, strong) UILabel *bluetoothSearchResultsLabel;
 @property(nonatomic, strong) UITextField *bluetoothFriendlyName;
 @property(nonatomic, strong) UITextField *lastFiveDigitsOfDeviceSerialNumber;
 @property(nonatomic, strong) UISwitch *bluetoothConnectToFirstFound;
@@ -55,6 +59,8 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 @property(nonatomic, strong) UIAlertView *prompt_doConnection_Low_Volume;
 @property(nonatomic, strong) UITextField *txtAmount;
 @property(nonatomic, strong) UITextField *txtReceiptEmailAddress;
+
+@property (strong, nonatomic)  UIPickerView *bluetoothDevicePicker;
 
 @property(nonatomic, strong) UITextField *txtCreditCardNumber;
 @property(nonatomic, strong) UITextField *txtExpirationDate;

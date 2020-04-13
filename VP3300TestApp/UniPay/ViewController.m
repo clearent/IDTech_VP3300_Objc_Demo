@@ -11,6 +11,7 @@ NSString *publicKey = @"307a301406072a8648ce3d020106092b240303020801010c03620004
 
 @synthesize resultsTextView;
 @synthesize connectedLabel;
+@synthesize bluetoothSearchResultsLabel;
 @synthesize bluetoothFriendlyName;
 @synthesize bluetoothConnectToFirstFound;
 @synthesize lastFiveDigitsOfDeviceSerialNumber;
@@ -20,7 +21,7 @@ NSString *publicKey = @"307a301406072a8648ce3d020106092b240303020801010c03620004
 @synthesize txtCreditCardNumber;
 @synthesize txtExpirationDate;
 @synthesize txtCsc;
-
+@synthesize bluetoothDevicePicker;
 @synthesize connectionTypeSelect;
 @synthesize readerUsage;
 @synthesize prompt_doConnection;
@@ -48,6 +49,10 @@ ClearentVP3300Config *clearentVP3300Config;
 ClearentManualEntry *clearentManualEntry;
 
 ClearentConnection *clearentConnection;
+
+NSMutableArray *bluetoothDevicePickerData;
+
+NSArray<ClearentBluetoothDevice> *bluetoothDevicesFound;
 
 static bool runSampleAsRefund = NO;
 
@@ -183,7 +188,9 @@ static int _lcdDisplayMode = 0;
 //so they can select the one to use. When they do so you can then pass this deviceId in the ClearentConnection object on your subsequent request.
 
 - (void) bluetoothDevices:(NSArray<ClearentBluetoothDevice> *)bluetoothDevices {
+    bluetoothDevicesFound = bluetoothDevices;
     if(bluetoothDevices != nil && [bluetoothDevices count] > 0) {
+        [bluetoothDevicePickerData removeAllObjects];
         if(!clearentConnection.connectToFirstBluetoothFound)  {
             [self appendMessageToResults:@"Bluetooth Search Results"];
         }
@@ -192,9 +199,16 @@ static int _lcdDisplayMode = 0;
                 connectedLabel.text = clearentBluetoothDevice.friendlyName;
             }
             if(!clearentConnection.connectToFirstBluetoothFound)  {
+                
+                [bluetoothDevicePickerData addObject:clearentBluetoothDevice.friendlyName];
                 [self appendMessageToResults:[NSString stringWithFormat:@"Found bluetooth device %@ %@ %@ ", clearentBluetoothDevice.friendlyName,
                                            clearentBluetoothDevice.deviceId, clearentBluetoothDevice.connected ? @" CONNECTED" : @" "]];
             }
+        }
+        
+        if(bluetoothDevicePickerData.count > 0) {
+            [bluetoothDevicePicker reloadAllComponents];
+           // bluetoothDevicePicker.hidden = NO;
         }
     }
     
@@ -243,36 +257,75 @@ static int _lcdDisplayMode = 0;
 #endif
     [self initSettings];
     
-
+    // Initialize Data
+    
+    // Connect data
+    bluetoothDevicePickerData = [NSMutableArray new];
+    [bluetoothDevicePickerData addObject:@""];
+    
+   // self.bluetoothDevicePicker = [UIPickerView new];
+    self.bluetoothDevicePicker.dataSource = self;
+    self.bluetoothDevicePicker.delegate = self;
+    self.bluetoothDevicePicker.showsSelectionIndicator = YES;
+    
+   // [self.view addSubview:self.bluetoothDevicePicker];
+   // self.bluetoothDevicePicker.hidden = YES;
     
 }
 
-//- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-//    return 1;
-//}
-//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-//{
-//    return bluetoothFriendlyNameFoundList.count;
-//}
-//
-//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    static NSString *cellIdentifier = @"cellIdentifier";
-//
-//    UITableViewCell *cell = [self.bluetoothList dequeueReusableCellWithIdentifier:cellIdentifier];
-//
-//    if(cell == nil) {
-//        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
-//
-//    }
-//    cell.textLabel.text =  [bluetoothFriendlyNameFoundList objectAtIndex:indexPath.row];
-//    return cell;
-//}
-//
-//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
-//{
-//    NSLog(@"title of cell %@", [bluetoothFriendlyNameFoundList objectAtIndex:indexPath.row]);
-//}
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+// Dispose of any resources that can be recreated.
+}
+
+// The number of columns of data
+- (NSInteger) numberOfComponentsInPickerView: (UIPickerView *) pickerView {
+   return 1;
+}
+
+// The number of rows of data
+- (NSInteger) pickerView: (UIPickerView *) pickerView numberOfRowsInComponent:(NSInteger)component {
+    return bluetoothDevicePickerData.count;
+}
+
+// The data to return for the row and component (column) that's being passed in
+ - (NSString*) pickerView: (UIPickerView *) pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+     NSLog(@"selected picker row row");
+     return bluetoothDevicePickerData[row];
+}
+
+- (void) pickerView: (UIPickerView *) pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    NSLog(@"selected row");
+    
+    NSString *pickedFriendlyName = bluetoothDevicePickerData[row];
+    if(bluetoothDevicesFound != nil && bluetoothDevicesFound.count > 0) {
+        for (ClearentBluetoothDevice* clearentBluetoothDevice in bluetoothDevicesFound) {
+            if(pickedFriendlyName != nil && ![pickedFriendlyName isEqualToString:clearentBluetoothDevice.friendlyName]) {
+                bluetoothFriendlyName.text = pickedFriendlyName;
+            }
+        }
+    }
+}
+
+- (UIView * ) pickerView: (UIPickerView * ) pickerView viewForRow: (NSInteger) row forComponent: (NSInteger) component reusingView: (UIView * ) view {
+    
+    UILabel * label = [
+        [UILabel alloc] initWithFrame: CGRectMake(0, 0, 300, 37)];
+    label.text = [bluetoothDevicePickerData objectAtIndex: row];
+    label.backgroundColor = [UIColor clearColor];
+    label.textColor = [UIColor blueColor];
+
+    return label;
+
+}
+
+// tell the picker the width of each row for a given component
+- (CGFloat) pickerView: (UIPickerView *) pickerView widthForComponent:(NSInteger)component {
+    int sectionWidth = 300;
+
+    return sectionWidth;
+}
+
 
 - (void) initClearent {
     
@@ -309,6 +362,7 @@ static int _lcdDisplayMode = 0;
     manualEntryButton.hidden = YES;
     useReaderButton.hidden = NO;
     cancelReaderButton.hidden = NO;
+    
 
 }
 
@@ -574,6 +628,8 @@ static int _lcdDisplayMode = 0;
         bluetoothFriendlyNameLabel.hidden = NO;
         bluetoothConnect.hidden = NO;
         bluetoothDisconnect.hidden = NO;
+        bluetoothSearchResultsLabel.hidden = NO;
+        bluetoothDevicePicker.hidden = NO;
         break;
     case 1:
         bluetoothConnectToFirstFound.hidden = YES;
@@ -584,6 +640,8 @@ static int _lcdDisplayMode = 0;
         bluetoothFriendlyNameLabel.hidden = YES;
         bluetoothConnect.hidden = YES;
         bluetoothDisconnect.hidden = YES;
+        bluetoothSearchResultsLabel.hidden = YES;
+        bluetoothDevicePicker.hidden = YES;
         break;
     default:
         break;
@@ -748,9 +806,23 @@ static int _lcdDisplayMode = 0;
         clearentConnection.connectToFirstBluetoothFound = false;
     }
     
+    NSString *enteredBluetoothFriendlyName = [bluetoothFriendlyName text];
+    
+    if(enteredBluetoothFriendlyName != nil && bluetoothDevicesFound != nil && bluetoothDevicesFound.count > 0) {
+        
+        for (ClearentBluetoothDevice* clearentBluetoothDevice in bluetoothDevicesFound) {
+            if([enteredBluetoothFriendlyName isEqualToString:clearentBluetoothDevice.friendlyName]) {
+                clearentConnection.bluetoothDeviceId = clearentBluetoothDevice.deviceId;
+                clearentConnection.fullFriendlyName = nil;
+            }
+        }
+    }
+    
     //Most of the time you will never use this. But you do have the ability to change the friendly name of the device and if you do you will need to provide
     //the full friendly name
-    clearentConnection.fullFriendlyName = [bluetoothFriendlyName text];
+    if(clearentConnection.bluetoothDeviceId == nil && enteredBluetoothFriendlyName != nil) {
+        clearentConnection.fullFriendlyName = enteredBluetoothFriendlyName;
+    }
     
     //if you have a reader in hand and can provide the last 5 digits of the device serial number the framework will add the IdTech friendly name for you
     //(IDTECH-VP3300-)
