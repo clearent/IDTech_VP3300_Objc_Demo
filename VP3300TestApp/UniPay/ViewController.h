@@ -16,10 +16,12 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 {
     
     IBOutlet UITextView *resultsTextView;
+    IBOutlet UILabel *searchBluetoothLabel;
     IBOutlet UILabel *connectedLabel;
     IBOutlet UILabel *bluetoothSearchResultsLabel;
     IBOutlet UITextField *bluetoothFriendlyName;
     IBOutlet UISwitch *bluetoothConnectToFirstFound;
+    IBOutlet UISwitch *searchBluetooth;
     IBOutlet UITextField *lastFiveDigitsOfDeviceSerialNumber;
     IBOutlet UITextField *txtAmount;
     IBOutlet UITextField *txtReceiptEmailAddress;
@@ -51,10 +53,12 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 
 @property(nonatomic, strong) UITextView *resultsTextView;
 @property(nonatomic, strong) UILabel *connectedLabel;
+@property(nonatomic, strong) UILabel *searchBluetoothLabel;
 @property(nonatomic, strong) UILabel *bluetoothSearchResultsLabel;
 @property(nonatomic, strong) UITextField *bluetoothFriendlyName;
 @property(nonatomic, strong) UITextField *lastFiveDigitsOfDeviceSerialNumber;
 @property(nonatomic, strong) UISwitch *bluetoothConnectToFirstFound;
+@property(nonatomic, strong) UISwitch *searchBluetooth;
 @property(nonatomic, strong) UIAlertView *prompt_doConnection;
 @property(nonatomic, strong) UIAlertView *prompt_doConnection_Low_Volume;
 @property(nonatomic, strong) UITextField *txtAmount;

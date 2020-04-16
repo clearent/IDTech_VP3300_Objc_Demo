@@ -11,6 +11,8 @@ NSString *publicKey = @"307a301406072a8648ce3d020106092b240303020801010c03620004
 
 @synthesize resultsTextView;
 @synthesize connectedLabel;
+@synthesize searchBluetoothLabel;
+@synthesize searchBluetooth;
 @synthesize bluetoothSearchResultsLabel;
 @synthesize bluetoothFriendlyName;
 @synthesize bluetoothConnectToFirstFound;
@@ -176,7 +178,6 @@ static int _lcdDisplayMode = 0;
 }
 
 - (void) feedback:(ClearentFeedback *)clearentFeedback {
-    
     [self appendMessageToResults:[NSString stringWithFormat:@"%@", clearentFeedback.message ]];
 
 }
@@ -201,8 +202,8 @@ static int _lcdDisplayMode = 0;
             if(!clearentConnection.connectToFirstBluetoothFound)  {
                 
                 [bluetoothDevicePickerData addObject:clearentBluetoothDevice.friendlyName];
-                [self appendMessageToResults:[NSString stringWithFormat:@"Found bluetooth device %@ %@ %@ ", clearentBluetoothDevice.friendlyName,
-                                           clearentBluetoothDevice.deviceId, clearentBluetoothDevice.connected ? @" CONNECTED" : @" "]];
+//                [self appendMessageToResults:[NSString stringWithFormat:@"Found bluetooth device %@ %@ %@ ", clearentBluetoothDevice.friendlyName,
+//                                           clearentBluetoothDevice.deviceId, clearentBluetoothDevice.connected ? @" CONNECTED" : @" "]];
             }
         }
         
@@ -630,6 +631,8 @@ static int _lcdDisplayMode = 0;
         bluetoothDisconnect.hidden = NO;
         bluetoothSearchResultsLabel.hidden = NO;
         bluetoothDevicePicker.hidden = NO;
+        searchBluetooth.hidden = NO;
+        searchBluetoothLabel.hidden = NO;
         break;
     case 1:
         bluetoothConnectToFirstFound.hidden = YES;
@@ -642,6 +645,8 @@ static int _lcdDisplayMode = 0;
         bluetoothDisconnect.hidden = YES;
         bluetoothSearchResultsLabel.hidden = YES;
         bluetoothDevicePicker.hidden = YES;
+        searchBluetooth.hidden = YES;
+        searchBluetoothLabel.hidden = YES;
         break;
     default:
         break;
@@ -795,7 +800,7 @@ static int _lcdDisplayMode = 0;
     
     ClearentConnection *clearentConnection;
     if(connectionTypeSelect.selectedSegmentIndex == 0) {
-        clearentConnection =  [[ClearentConnection alloc] initBluetooth];
+        clearentConnection =  [[ClearentConnection alloc] initBluetoothFirstConnect];
     } else {
         clearentConnection =  [[ClearentConnection alloc] initAudioJack];
     }
@@ -804,6 +809,12 @@ static int _lcdDisplayMode = 0;
         clearentConnection.connectToFirstBluetoothFound = true;
     } else {
         clearentConnection.connectToFirstBluetoothFound = false;
+    }
+    
+    if(searchBluetooth.on) {
+        clearentConnection.searchBluetooth = true;
+    } else {
+        clearentConnection.searchBluetooth = false;
     }
     
     NSString *enteredBluetoothFriendlyName = [bluetoothFriendlyName text];
@@ -817,7 +828,7 @@ static int _lcdDisplayMode = 0;
             }
         }
     }
-    
+    clearentConnection.bluetoothMaximumScanInSeconds = 60;
     //Most of the time you will never use this. But you do have the ability to change the friendly name of the device and if you do you will need to provide
     //the full friendly name
     if(clearentConnection.bluetoothDeviceId == nil && enteredBluetoothFriendlyName != nil) {

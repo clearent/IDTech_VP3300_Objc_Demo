@@ -17,7 +17,7 @@
 /**
  * This will notify you when the device is ready for use (connection, configuration, etc is completed).
  */
--(void) isReady;
+-(void) isReady __deprecated_msg("Rely on the deviceConnected callback.");
 
 /**
  * This will notify you when a Clearent Transaction Token has been successfully created based on the card data read from the ID Tech device. The json returned represents a Clearent Response.
@@ -33,6 +33,11 @@
 * this SDK).
 */
 -(void) successTransactionToken:(ClearentTransactionToken *) clearentTransactionToken;
+
+/**
+ *  When the framework wants to communicate back it will call this method.
+ */
+- (void) feedback:(ClearentFeedback*) clearentFeedback;
 
 @optional
 -(void) deviceConnected; //!<Fires when device connects.  If a connection is established before the delegate is established (no delegate to send initial connection notification to), this method will fire upon establishing the delegate.
@@ -57,18 +62,13 @@
 //Deprecated - Use message method
 - (void) lcdDisplay:(int)mode  lines:(NSArray*)lines __deprecated_msg("use feedback method instead.");
 
-- (void) dataInOutMonitor:(NSData*)data  incoming:(BOOL)isIncoming;
+- (void) dataInOutMonitor:(NSData*)data  incoming:(BOOL)isIncoming __deprecated_msg("We are utilizing remote logging for support.");
 
 - (void) bypassData:(NSData*)data __deprecated_msg("not used in our implementation.");//!<When bypass output is enabled, all data intended for the current device will be sent here .
 //!< @param data The data intended for the device
 
 /**
- *  When the framework wants to communicate back it will call this method.
- */
-- (void) feedback:(ClearentFeedback*) cleaarentFeedback;
-
-/**
- *  If you started a oayment and asked the framework to connect to a bluetooth device, and the device is not found, or you were asking for a general scan, the framework will send back a list of
+ *  If you started a payment and asked the framework to connect to a bluetooth device, and the device is not found, or you were asking for a general scan, the framework will send back a list of
  *      bluetooth devices it found within the scan time you provided.
  */
 - (void) bluetoothDevices:(NSArray<ClearentBluetoothDevice*>*) bluetoothDevices;

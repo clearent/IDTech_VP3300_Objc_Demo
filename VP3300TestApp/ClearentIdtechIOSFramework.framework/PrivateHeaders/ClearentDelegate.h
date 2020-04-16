@@ -47,13 +47,14 @@ typedef enum {SWIPE=90} supportedNonEmvEntryMode;
 @property(nonatomic) id callbackObject;
 @property (nonatomic,strong) NSDictionary *feedbackValues;
 @property (nonatomic,strong) ClearentDeviceConnector *clearentDeviceConnector;
+@property (nonatomic,strong) IDT_VP3300 *idTechSharedInstance;
 
-- (id) init: (id <Clearent_Public_IDTech_VP3300_Delegate>) publicDelegate clearentBaseUrl:(NSString*)clearentBaseUrl publicKey:(NSString*)publicKey ;
+- (id) init: (id <Clearent_Public_IDTech_VP3300_Delegate>) publicDelegate clearentBaseUrl:(NSString*)clearentBaseUrl publicKey:(NSString*)publicKey idTechSharedInstance: (IDT_VP3300*) idTechSharedInstance ;
 
-- (id) initWithConfig : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentVP3300Configuration:(id <ClearentVP3300Configuration>) clearentVP3300Configuration;
+- (id) initWithConfig : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentVP3300Configuration:(id <ClearentVP3300Configuration>) clearentVP3300Configuration idTechSharedInstance: (IDT_VP3300*) idTechSharedInstance ;
 
 
-- (id) initWithPaymentCallback : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentVP3300Configuration:(id <ClearentVP3300Configuration>) clearentVP3300Configuration callbackObject:(id)callbackObject withSelector:(SEL)runTransactionSelector;
+- (id) initWithPaymentCallback : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentVP3300Configuration:(id <ClearentVP3300Configuration>) clearentVP3300Configuration callbackObject:(id)callbackObject withSelector:(SEL)runTransactionSelector idTechSharedInstance: (IDT_VP3300*) idTechSharedInstance ;
 
 - (ClearentTransactionTokenRequest*) createClearentTransactionTokenRequest:(IDTEMVData*)emvData;
 

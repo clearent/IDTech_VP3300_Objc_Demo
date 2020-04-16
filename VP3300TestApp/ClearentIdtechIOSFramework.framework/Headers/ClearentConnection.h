@@ -15,14 +15,9 @@ typedef NS_ENUM(NSUInteger, CONNECTION_TYPE) {
 
 typedef enum {
     BLUETOOTH_ADVERTISING_INTERVAL_DEFAULT = 0,
-    BLUETOOTH_ADVERTISING_INTERVAL_60_MS = 1,
-    BLUETOOTH_ADVERTISING_INTERVAL_152_MS = 2,
-    BLUETOOTH_ADVERTISING_INTERVAL_211_MS = 3,
-    BLUETOOTH_ADVERTISING_INTERVAL_318_MS = 4,
-    BLUETOOTH_ADVERTISING_INTERVAL_417_MS = 5,
-    BLUETOOTH_ADVERTISING_INTERVAL_546_MS = 6,
-    BLUETOOTH_ADVERTISING_INTERVAL_760_MS = 7,
-    BLUETOOTH_ADVERTISING_INTERVAL_1280_MS = 8
+    BLUETOOTH_ADVERTISING_INTERVAL_319_MS = 1,
+    BLUETOOTH_ADVERTISING_INTERVAL_760_MS = 2,
+    BLUETOOTH_ADVERTISING_INTERVAL_1280_MS = 3
 } BLUETOOTH_ADVERTISING_INTERVAL;
 
 typedef NS_ENUM(NSUInteger, READER_INTERFACE_MODE) {
@@ -37,6 +32,7 @@ typedef NS_ENUM(NSUInteger, READER_INTERFACE_MODE) {
 - (NSString*) fullFriendlyName;
 - (NSString*) bluetoothDeviceId;
 - (BOOL) connectToFirstBluetoothFound;
+- (BOOL) searchBluetooth;
 - (CONNECTION_TYPE*) connectionType;
 - (READER_INTERFACE_MODE*) readerInterfaceMode;
 - (NSString*) createLogMessage;
@@ -45,6 +41,12 @@ typedef NS_ENUM(NSUInteger, READER_INTERFACE_MODE) {
 
 - (instancetype) initBluetooth;
 - (instancetype) initAudioJack;
+- (instancetype) initBluetoothSearch;
+- (instancetype) initBluetoothSearchWithMaxScanTime: (int) bluetoothMaximumScanInSeconds;
+- (instancetype) initBluetoothFirstConnect;
+- (instancetype) initBluetoothWithLast5: (NSString*) lastFiveDigitsOfDeviceSerialNumber;
+- (instancetype) initBluetoothWithFriendlyName: (NSString*) fullFriendlyName;
+- (instancetype) initBluetoothWithDeviceUUID: (NSString*) deviceUUID;
 
 @end
 
@@ -55,6 +57,7 @@ typedef NS_ENUM(NSUInteger, READER_INTERFACE_MODE) {
 @property (nonatomic) NSString *fullFriendlyName;
 @property (nonatomic) NSString *bluetoothDeviceId;
 @property (nonatomic) BOOL connectToFirstBluetoothFound;
+@property (nonatomic) BOOL searchBluetooth;
 @property (nonatomic) CONNECTION_TYPE connectionType;
 @property (nonatomic) READER_INTERFACE_MODE readerInterfaceMode;
 @property (nonatomic) BLUETOOTH_ADVERTISING_INTERVAL bluetoothAdvertisingInterval;
@@ -65,5 +68,13 @@ typedef NS_ENUM(NSUInteger, READER_INTERFACE_MODE) {
 
 - (instancetype) initBluetooth;
 - (instancetype) initAudioJack;
+- (instancetype) initBluetoothSearch;
+- (instancetype) initBluetoothSearchWithMaxScanTime: (int) bluetoothMaximumScanInSeconds;
+- (instancetype) initBluetoothFirstConnect;
+- (instancetype) initBluetoothWithLast5: (NSString*) lastFiveDigitsOfDeviceSerialNumber;
+- (instancetype) initBluetoothWithFriendlyName: (NSString*) fullFriendlyName;
+- (instancetype) initBluetoothWithDeviceUUID: (NSString*) deviceUUID;
+
++ (BOOL) isNewConnectionRequest:(ClearentConnection*) currentConnection connectionRequest:(ClearentConnection*) clearentConnection;
 
 @end

@@ -25,15 +25,13 @@
 @interface Clearent_VP3300 : NSObject
 @property(nonatomic) SEL callBackSelector;
 
-/**
- * This is deprecated. Use initWithConfig instead
- */
-- (id) init : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentBaseUrl:(NSString*)clearentBaseUrl publicKey:(NSString*)publicKey;
+- (id) init : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentBaseUrl:(NSString*)clearentBaseUrl publicKey:(NSString*)publicKey
+__deprecated_msg("use initWithConnectionHandling method instead.");
 
 /**
  * Configuration includes capability to disable remote logging
  */
-- (id) initWithConfig : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentVP3300Configuration:(id <ClearentVP3300Configuration>) clearentVP3300Configuration;
+- (id) initWithConfig : (id <Clearent_Public_IDTech_VP3300_Delegate>)publicDelegate clearentVP3300Configuration:(id <ClearentVP3300Configuration>) clearentVP3300Configuration __deprecated_msg("use initWithConnectionHandling method instead.");
 
 /**
  * Configuration includes ability to handle bluetooth and audio jack connections.
@@ -1605,7 +1603,7 @@ If you did not instruct the framework to do any configuration when you initializ
 */
 -(void) startConnection:(ClearentConnection*) clearentConnection;
 
-- (void) adjustBluetoothAdvertisingInterval;
+//- (void) adjustBluetoothAdvertisingInterval;
 
 @end
 
