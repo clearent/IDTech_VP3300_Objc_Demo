@@ -192,9 +192,9 @@ static int _lcdDisplayMode = 0;
     bluetoothDevicesFound = bluetoothDevices;
     if(bluetoothDevices != nil && [bluetoothDevices count] > 0) {
         [bluetoothDevicePickerData removeAllObjects];
-        if(!clearentConnection.connectToFirstBluetoothFound)  {
-            [self appendMessageToResults:@"Bluetooth Search Results"];
-        }
+//        if(!clearentConnection.connectToFirstBluetoothFound)  {
+//            [self appendMessageToResults:@"Bluetooth Search Results"];
+//        }
         for (ClearentBluetoothDevice* clearentBluetoothDevice in bluetoothDevices) {
             if(clearentBluetoothDevice.connected) {
                 connectedLabel.text = clearentBluetoothDevice.friendlyName;
@@ -269,6 +269,7 @@ static int _lcdDisplayMode = 0;
     self.bluetoothDevicePicker.delegate = self;
     self.bluetoothDevicePicker.showsSelectionIndicator = YES;
     
+    self.searchBluetooth.on = false;
    // [self.view addSubview:self.bluetoothDevicePicker];
    // self.bluetoothDevicePicker.hidden = YES;
     
@@ -828,7 +829,9 @@ static int _lcdDisplayMode = 0;
             }
         }
     }
-    clearentConnection.bluetoothMaximumScanInSeconds = 60;
+    
+    //clearentConnection.bluetoothMaximumScanInSeconds = 60;
+    
     //Most of the time you will never use this. But you do have the ability to change the friendly name of the device and if you do you will need to provide
     //the full friendly name
     if(clearentConnection.bluetoothDeviceId == nil && enteredBluetoothFriendlyName != nil) {
