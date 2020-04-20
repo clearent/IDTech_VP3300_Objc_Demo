@@ -1605,6 +1605,7 @@ If you did not instruct the framework to do any configuration when you initializ
 
 //- (void) adjustBluetoothAdvertisingInterval;
 
+
 @end
 
 

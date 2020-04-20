@@ -42,6 +42,12 @@ NSString *publicKey = @"307a301406072a8648ce3d020106092b240303020801010c03620004
 @synthesize cancelReaderButton;
 @synthesize manualEntryButton;
 
+@synthesize loopTest;
+@synthesize cancelLoopTest;
+
+@synthesize batteryLevelLabel;
+@synthesize loopCountLabel;
+
 //CLEARENT: This is the object you will interact with.
 Clearent_VP3300 *clearentVP3300;
 
@@ -57,6 +63,16 @@ NSMutableArray *bluetoothDevicePickerData;
 NSArray<ClearentBluetoothDevice> *bluetoothDevicesFound;
 
 static bool runSampleAsRefund = NO;
+
+static bool runningTransaction = false;
+
+static bool startLoop = false;
+
+NSString *loopStartTime;
+NSString *loopEndTime;
+int loopCount = 0;
+NSTimer *loopTimer;
+NSString *batteryLevelTime;
 
 extern int g_IOS_Type;
 
@@ -86,8 +102,10 @@ extern int g_IOS_Type;
     
 }
 
-- (IBAction) DoKeyboardOff:(id)sender{
+- (IBAction) DoKeyboardOff: (id) sender {
+    
     [sender resignFirstResponder];
+    
 }
 
 
@@ -140,7 +158,7 @@ static int _lcdDisplayMode = 0;
 
 -(void) beepbeep {
     NSData* response;
-    RETURN_CODE sendCommandRt = [[IDT_VP3300 sharedController] device_sendIDGCommand:0x01 subCommand:0x02 data:[IDTUtility hexToData:@"ff04ff00"] response:&response];
+    RETURN_CODE sendCommandRt = [clearentVP3300 device_sendIDGCommand:0x01 subCommand:0x02 data:[IDTUtility hexToData:@"ff04ff00"] response:&response];
     if(RETURN_CODE_DO_SUCCESS != sendCommandRt) {
         NSLog(@"it worked");
     } else {
@@ -148,15 +166,49 @@ static int _lcdDisplayMode = 0;
     }
 }
 
+//Check every time to contribute to drain.
+- (void) getLowBatteryLevelTime {
+    
+    bool islow = false;
+    
+    if([clearentVP3300 isConnected]) {
+        
+        @try {
+            NSData* sendCommandResponse;
+            
+            RETURN_CODE sendCommandRt = [[IDT_VP3300 sharedController] device_sendIDGCommand:0xF0 subCommand:0x02 data:nil response:&sendCommandResponse];
+            
+            if(RETURN_CODE_DO_SUCCESS == sendCommandRt) {
+                islow = true;
+            } else {
+                islow = false;
+            }
+        } @catch (NSException *exception) {
+            NSLog(@"catch");
+        } @finally {
+            NSLog(@"finally");
+        }
+        
+    }
+    
+    if(islow && batteryLevelTime == nil) {
+        batteryLevelTime = [self getTime];
+    }
+}
+
 -(void) deviceConnected {
     connectedLabel.text = @"Connected";
     connectedLabel.backgroundColor = UIColor.systemGreenColor;
+    
+   // [self getLowBatteryLevelTime];
+    
 }
 
 -(void) deviceDisconnected {
     NSLog(@"DisConnt --");
     connectedLabel.text = @"Disconnected";
     connectedLabel.backgroundColor = UIColor.lightGrayColor;
+    batteryLevelLabel.text = @"";
 }
 
 -(void) eventFunctionICC: (Byte) nICC_Attached{
@@ -178,7 +230,13 @@ static int _lcdDisplayMode = 0;
 }
 
 - (void) feedback:(ClearentFeedback *)clearentFeedback {
-    [self appendMessageToResults:[NSString stringWithFormat:@"%@", clearentFeedback.message ]];
+    
+    if(clearentFeedback.returnCode > 0) {
+        runningTransaction = false;
+        [self appendMessageToResults:[NSString stringWithFormat:@"Cancel transaction %@", clearentFeedback.message ]];
+    } else {
+        [self appendMessageToResults:[NSString stringWithFormat:@"%@", clearentFeedback.message ]];
+    }
 
 }
 
@@ -189,37 +247,40 @@ static int _lcdDisplayMode = 0;
 //so they can select the one to use. When they do so you can then pass this deviceId in the ClearentConnection object on your subsequent request.
 
 - (void) bluetoothDevices:(NSArray<ClearentBluetoothDevice> *)bluetoothDevices {
+    
     bluetoothDevicesFound = bluetoothDevices;
+    
     if(bluetoothDevices != nil && [bluetoothDevices count] > 0) {
+        
         [bluetoothDevicePickerData removeAllObjects];
-//        if(!clearentConnection.connectToFirstBluetoothFound)  {
-//            [self appendMessageToResults:@"Bluetooth Search Results"];
-//        }
+        
         for (ClearentBluetoothDevice* clearentBluetoothDevice in bluetoothDevices) {
+            
             if(clearentBluetoothDevice.connected) {
                 connectedLabel.text = clearentBluetoothDevice.friendlyName;
             }
-            if(!clearentConnection.connectToFirstBluetoothFound)  {
-                
-                [bluetoothDevicePickerData addObject:clearentBluetoothDevice.friendlyName];
-//                [self appendMessageToResults:[NSString stringWithFormat:@"Found bluetooth device %@ %@ %@ ", clearentBluetoothDevice.friendlyName,
-//                                           clearentBluetoothDevice.deviceId, clearentBluetoothDevice.connected ? @" CONNECTED" : @" "]];
-            }
+            
+            [bluetoothDevicePickerData addObject:clearentBluetoothDevice.friendlyName];
+            
         }
         
         if(bluetoothDevicePickerData.count > 0) {
+            
             [bluetoothDevicePicker reloadAllComponents];
-           // bluetoothDevicePicker.hidden = NO;
+            
         }
     }
     
 }
 
-- (void) handleManualEntryError:(NSString*)message{
+- (void) handleManualEntryError: (NSString*) message {
+    
     [self appendMessageToResults:message];
+    
 }
 
--(void) showAlertView:(NSString*)msg {
+- (void) showAlertView: (NSString*) msg {
+    
     [self dismissAllAlertViews];
     
     UIAlertView *alertView = [[UIAlertView alloc]
@@ -229,6 +290,7 @@ static int _lcdDisplayMode = 0;
                               cancelButtonTitle:@"Ok"
                               otherButtonTitles:nil];
     [alertView show];
+    
     alertView = nil;
 }
 
@@ -258,54 +320,44 @@ static int _lcdDisplayMode = 0;
 #endif
     [self initSettings];
     
-    // Initialize Data
-    
-    // Connect data
-    bluetoothDevicePickerData = [NSMutableArray new];
-    [bluetoothDevicePickerData addObject:@""];
-    
-   // self.bluetoothDevicePicker = [UIPickerView new];
-    self.bluetoothDevicePicker.dataSource = self;
-    self.bluetoothDevicePicker.delegate = self;
-    self.bluetoothDevicePicker.showsSelectionIndicator = YES;
-    
-    self.searchBluetooth.on = false;
-   // [self.view addSubview:self.bluetoothDevicePicker];
-   // self.bluetoothDevicePicker.hidden = YES;
-    
 }
 
 - (void)didReceiveMemoryWarning {
+    
     [super didReceiveMemoryWarning];
-// Dispose of any resources that can be recreated.
+    
 }
 
-// The number of columns of data
 - (NSInteger) numberOfComponentsInPickerView: (UIPickerView *) pickerView {
+    
    return 1;
+    
 }
 
-// The number of rows of data
 - (NSInteger) pickerView: (UIPickerView *) pickerView numberOfRowsInComponent:(NSInteger)component {
+    
     return bluetoothDevicePickerData.count;
+    
 }
 
-// The data to return for the row and component (column) that's being passed in
  - (NSString*) pickerView: (UIPickerView *) pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
-     NSLog(@"selected picker row row");
+     
      return bluetoothDevicePickerData[row];
+     
 }
 
 - (void) pickerView: (UIPickerView *) pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-    NSLog(@"selected row");
     
     NSString *pickedFriendlyName = bluetoothDevicePickerData[row];
+    
     if(bluetoothDevicesFound != nil && bluetoothDevicesFound.count > 0) {
+        
         for (ClearentBluetoothDevice* clearentBluetoothDevice in bluetoothDevicesFound) {
             if(pickedFriendlyName != nil && ![pickedFriendlyName isEqualToString:clearentBluetoothDevice.friendlyName]) {
                 bluetoothFriendlyName.text = pickedFriendlyName;
             }
         }
+        
     }
 }
 
@@ -321,7 +373,6 @@ static int _lcdDisplayMode = 0;
 
 }
 
-// tell the picker the width of each row for a given component
 - (CGFloat) pickerView: (UIPickerView *) pickerView widthForComponent:(NSInteger)component {
     int sectionWidth = 300;
 
@@ -331,18 +382,17 @@ static int _lcdDisplayMode = 0;
 
 - (void) initClearent {
     
-       [self initClearentVP3300Config];
+    [self initClearentVP3300Config];
        
-       clearentVP3300 = [[Clearent_VP3300 alloc] initWithConnectionHandling:self clearentVP3300Configuration:clearentVP3300Config];
+    clearentVP3300 = [[Clearent_VP3300 alloc] initWithConnectionHandling:self clearentVP3300Configuration:clearentVP3300Config];
        
-       clearentManualEntry = [[ClearentManualEntry alloc]  init];
-    
-       [clearentManualEntry init:self clearentBaseUrl:baseUrl publicKey:@"307a301406072a8648ce3d020106092b240303020801010c036200042b0cfb3a1faaca8fb779081717a0bafb03e0cb061a1ef297f75dc5b951aaf163b0c2021e9bb73071bf89c711070e96ab1b63c674be13041d9eb68a456eb6ae63a97a9345c120cd8bff1d5998b2ebbafc198c5c5b26c687bfbeb68b312feb43bf"];
+    clearentManualEntry = [clearentManualEntry init:self clearentBaseUrl:baseUrl publicKey:publicKey];
 }
 
 - (void) initClearentVP3300Config {
     
     clearentVP3300Config = [[ClearentVP3300Config alloc] init];
+    
     clearentVP3300Config.clearentBaseUrl = baseUrl;
     clearentVP3300Config.publicKey = publicKey;
     clearentVP3300Config.contactAutoConfiguration = false;
@@ -364,8 +414,16 @@ static int _lcdDisplayMode = 0;
     manualEntryButton.hidden = YES;
     useReaderButton.hidden = NO;
     cancelReaderButton.hidden = NO;
+    bluetoothDevicePickerData = [NSMutableArray new];
+    [bluetoothDevicePickerData addObject:@""];
+       
+    self.bluetoothDevicePicker.dataSource = self;
+    self.bluetoothDevicePicker.delegate = self;
+    self.bluetoothDevicePicker.showsSelectionIndicator = YES;
+       
+    self.searchBluetooth.on = false;
+    self.bluetoothConnectToFirstFound.on = false;
     
-
 }
 
 -(void) exampleManualEntry {
@@ -435,6 +493,7 @@ static int _lcdDisplayMode = 0;
     //add the JWT as a header.
     [request setValue:jwt forHTTPHeaderField:@"mobilejwt"];
     [request setURL:[NSURL URLWithString:targetUrl]];
+    [request setTimeoutInterval:20];
     
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:
       ^(NSData * _Nullable data,
@@ -445,6 +504,7 @@ static int _lcdDisplayMode = 0;
           NSLog(@"Clearent Transaction Response status code: %ld", (long)[httpResponse statusCode]);
           if(error != nil) {
               [self appendMessageToResults:error.description];
+              runningTransaction = false;
           } else if(data != nil && [httpResponse statusCode] == 200) {
               NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
               NSDictionary *successfulResponseDictionary = [self jsonAsDictionary:responseStr];
@@ -464,8 +524,9 @@ static int _lcdDisplayMode = 0;
               [self appendMessageToResults:transactionResult];
               if(self.txtReceiptEmailAddress.text != nil) {
                   [self exampleRequestReceipt:transactionId];
+              } else {
+                  runningTransaction = false;
               }
-        
           } else {
               NSString *errorResult;
               NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -500,8 +561,9 @@ static int _lcdDisplayMode = 0;
                       [self appendMessageToResults:@"Failed to handle response"];
                   }
               }
-          
-      }] resume];
+              runningTransaction = false;
+        
+      } ] resume];
 }
 
 - (NSData*) exampleClearentTransactionRequestAsJson  {
@@ -574,6 +636,7 @@ static int _lcdDisplayMode = 0;
     [request setValue:@"24425c33043244778a188bd19846e860" forHTTPHeaderField:@"api-key"];
 
     [request setURL:[NSURL URLWithString:targetUrl]];
+    [request setTimeoutInterval:20];
     
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:
       ^(NSData * _Nullable data,
@@ -602,6 +665,7 @@ static int _lcdDisplayMode = 0;
               }
 
           }
+          runningTransaction = false;
       }] resume];
 }
 
@@ -738,6 +802,71 @@ static int _lcdDisplayMode = 0;
     
 }
 
+- (IBAction) f_loopTest:(id)sender {
+        
+    startLoop = true;
+    loopCount = 0;
+    loopCountLabel.text = @"";
+    batteryLevelLabel.text = @"";
+    batteryLevelTime = nil;
+    loopStartTime = [self getTime];
+    
+    [self startTransactionInLoop:nil];
+    loopTimer = [NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(startTransactionInLoop:) userInfo:nil repeats:true];
+    
+}
+
+- (void) startTransactionInLoop:(id) sender {
+    
+    resultsTextView.text = @"";
+    
+    if(!runningTransaction) {
+
+        [clearentVP3300  device_cancelTransaction];
+        //[clearentVP3300 device_disconnectBLE];
+        
+        runningTransaction = true;
+        loopCount = loopCount + 1;
+        loopCountLabel.text = [NSString stringWithFormat:@"%i",loopCount];
+        ClearentPayment *clearentPayment = [self createClearentPayment];
+        clearentConnection = [self createClearentConnection];
+        ClearentResponse *clearentResponse = [clearentVP3300 startTransaction:clearentPayment clearentConnection:clearentConnection];
+
+        if(clearentResponse.responseType != RESPONSE_SUCCESS) {
+            NSString * str = [NSString stringWithFormat:
+                            @"ERROR: ID-\"%i\", message: %@.",
+                              clearentResponse.idtechReturnCode, clearentResponse.response];
+            [self appendMessageToResults:str];
+            [clearentVP3300  device_cancelTransaction];
+        }
+    }
+}
+
+- (IBAction) f_cancelLoopTest:(id)sender {
+    
+    if (loopTimer != nil) {
+        [loopTimer invalidate];
+        loopTimer = nil;
+        startLoop = false;
+    }
+    
+    loopCountLabel.text = [NSString stringWithFormat:@"%i",loopCount];
+    
+    if(batteryLevelTime != nil) {
+        batteryLevelLabel.text = [NSString stringWithFormat:@"Low at %@", batteryLevelTime];
+    } else {
+        batteryLevelLabel.text = @"No Battery Info";
+    }
+    
+    if(loopStartTime != nil) {
+        loopEndTime = [self getTime];
+        NSString *timeRange = [NSString stringWithFormat:@"Loop Time  %@ to %@ , transaction count: %i",loopStartTime, loopEndTime, loopCount];
+        [self appendMessageToResults:timeRange];
+    }
+    
+}
+
+
 - (IBAction) f_startAnyTransaction:(id)sender{
 
     resultsTextView.text = @"";
@@ -767,10 +896,13 @@ static int _lcdDisplayMode = 0;
     //inserted the card wrong.
     
     if(clearentResponse.responseType != RESPONSE_SUCCESS) {
+        
         NSString * str = [NSString stringWithFormat:
                         @"ERROR: ID-\"%i\", message: %@.",
                           clearentResponse.idtechReturnCode, clearentResponse.response];
+        
         [self appendMessageToResults:str];
+        
     }
 }
 
@@ -833,13 +965,16 @@ static int _lcdDisplayMode = 0;
     //clearentConnection.bluetoothMaximumScanInSeconds = 60;
     
     //Most of the time you will never use this. But you do have the ability to change the friendly name of the device and if you do you will need to provide
-    //the full friendly name
+    //the full friendly name, especially if it does not conform to IDTECH's default naming standard - IDTECH-VP3300-nnnnn (where nnnnn is last 5 of device serial
+    //number.
+    
     if(clearentConnection.bluetoothDeviceId == nil && enteredBluetoothFriendlyName != nil) {
         clearentConnection.fullFriendlyName = enteredBluetoothFriendlyName;
     }
     
-    //if you have a reader in hand and can provide the last 5 digits of the device serial number the framework will add the IdTech friendly name for you
+    //if you have a reader in hand, and can provide the last 5 digits of the device serial number, the framework will add the IdTech friendly name prefix for you
     //(IDTECH-VP3300-)
+    
     clearentConnection.lastFiveDigitsOfDeviceSerialNumber = [lastFiveDigitsOfDeviceSerialNumber text];
 
     return clearentConnection;
@@ -862,6 +997,18 @@ static int _lcdDisplayMode = 0;
     }
     
     return amount;
+}
+
+
+- (NSString*) getTime {
+    
+    NSDate * now = [NSDate date];
+    NSDateFormatter *outputFormatter = [[NSDateFormatter alloc] init];
+    [outputFormatter setDateFormat:@"HH:mm:ss"];
+    NSString *newDateString = [outputFormatter stringFromDate:now];
+    NSLog(@"date %@", newDateString);
+    return newDateString;
+    
 }
 
 

@@ -14,7 +14,7 @@
 UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDelegate, UIPickerViewDelegate, UIPickerViewDataSource>
 
 {
-    
+     IBOutlet UILabel *loopCountLabel;
     IBOutlet UITextView *resultsTextView;
     IBOutlet UILabel *searchBluetoothLabel;
     IBOutlet UILabel *connectedLabel;
@@ -49,9 +49,15 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
     
     IBOutlet UIPickerView *bluetoothDevicePicker;
     
+    IBOutlet UIButton *loopTest;
+    IBOutlet UIButton *cancelLoopTest;
+    
+    IBOutlet UILabel *batteryLevelLabel;
+    
 }
 
 @property(nonatomic, strong) UITextView *resultsTextView;
+@property(nonatomic, strong) UILabel *loopCountLabel;
 @property(nonatomic, strong) UILabel *connectedLabel;
 @property(nonatomic, strong) UILabel *searchBluetoothLabel;
 @property(nonatomic, strong) UILabel *bluetoothSearchResultsLabel;
@@ -86,10 +92,18 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 @property(nonatomic, strong) UIButton *cancelReaderButton;
 @property(nonatomic, strong) UIButton *manualEntryButton;
 
+@property(nonatomic, strong) UIButton *loopTest;
+@property(nonatomic, strong) UIButton *cancelLoopTest;
+
+@property(nonatomic, strong) UILabel *batteryLevelLabel;
+
 - (IBAction) f_cancelTrans:(id)sender;
 - (IBAction) DoKeyboardOff:(id)sender;
 - (IBAction) f_startAnyTransaction:(id)sender;
 - (IBAction) f_manualEntry:(id)sender;
 - (IBAction) connectionTypeChanged:(id)sender;
 - (IBAction) readerUsageChanged:(id)sender;
+
+- (IBAction) f_loopTest:(id)sender;
+- (IBAction) f_cancelLoopTest:(id)sender;
 @end

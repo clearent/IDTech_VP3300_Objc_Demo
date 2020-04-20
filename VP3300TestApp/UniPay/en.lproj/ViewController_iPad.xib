@@ -9,6 +9,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ViewController">
             <connections>
+                <outlet property="batteryLevelLabel" destination="PKu-k5-JPK" id="gTH-tM-ERC"/>
                 <outlet property="bluetoothConnect" destination="YWJ-lr-MW9" id="5Tp-RK-oDU"/>
                 <outlet property="bluetoothConnectToFirstFound" destination="g1G-we-mGc" id="zmv-FZ-1jI"/>
                 <outlet property="bluetoothConnectToFirstFoundLabel" destination="6ee-jd-t2V" id="sNU-rI-n4r"/>
@@ -17,6 +18,7 @@
                 <outlet property="bluetoothFriendlyName" destination="Hui-af-gMd" id="0PY-R7-JUZ"/>
                 <outlet property="bluetoothFriendlyNameLabel" destination="dEb-WH-t6y" id="jKQ-NG-eT2"/>
                 <outlet property="bluetoothSearchResultsLabel" destination="uBo-5H-xvA" id="n5O-En-zCi"/>
+                <outlet property="cancelLoopTest" destination="zmf-v0-NNl" id="YNf-fm-Zmn"/>
                 <outlet property="cancelReaderButton" destination="iSx-qN-vi3" id="dCz-fX-3Db"/>
                 <outlet property="cardLabel" destination="3zo-7X-us1" id="Guh-nC-V4Y"/>
                 <outlet property="connectedLabel" destination="10" id="11"/>
@@ -25,6 +27,8 @@
                 <outlet property="expirationDateLabel" destination="rK7-rU-h5l" id="UuB-kD-FVJ"/>
                 <outlet property="lastFiveDigitsOfDeviceSerialNumber" destination="U2V-TN-VSI" id="H4i-J0-I1s"/>
                 <outlet property="lastFiveDigitsOfDeviceSerialNumberLabel" destination="o5K-8B-cMP" id="sGN-XK-UIz"/>
+                <outlet property="loopCountLabel" destination="cXv-Gb-xaU" id="RN2-si-1Ye"/>
+                <outlet property="loopTest" destination="fWy-6c-yfK" id="b3P-6i-xbH"/>
                 <outlet property="manualEntryButton" destination="r0e-o5-5c5" id="3eS-74-AsA"/>
                 <outlet property="readerUsage" destination="ODr-vz-NRz" id="xHD-qm-B5b"/>
                 <outlet property="resultsTextView" destination="7" id="82"/>
@@ -113,6 +117,9 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
+                    <connections>
+                        <action selector="DoKeyboardOff:" destination="-1" eventType="editingDidEndOnExit" id="KEw-4t-A1k"/>
+                    </connections>
                 </textField>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Receipt Email" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fe7-7s-duF">
                     <rect key="frame" x="353" y="422" width="104" height="21"/>
@@ -126,6 +133,9 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <action selector="DoKeyboardOff:" destination="-1" eventType="editingDidEndOnExit" id="QlW-ym-mHk"/>
+                    </connections>
                 </textField>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iSx-qN-vi3">
                     <rect key="frame" x="178" y="402" width="150" height="59"/>
@@ -177,6 +187,9 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <action selector="DoKeyboardOff:" destination="-1" eventType="editingDidEndOnExit" id="gy6-Ko-mSN"/>
+                    </connections>
                 </textField>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Card" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3zo-7X-us1">
                     <rect key="frame" x="420" y="470" width="37" height="21"/>
@@ -197,12 +210,19 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <action selector="DoKeyboardOff:" destination="-1" eventType="editingDidEndOnExit" id="hUl-yt-RBe"/>
+                    </connections>
                 </textField>
                 <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="2Wh-PB-T8o">
                     <rect key="frame" x="463" y="556" width="64" height="34"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <action selector="DoKeyboardOff:" destination="-1" eventType="editingDidEnd" id="UhO-0d-7UO"/>
+                        <action selector="DoKeyboardOff:" destination="-1" eventType="editingDidEndOnExit" id="bgM-9B-ZBx"/>
+                    </connections>
                 </textField>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Csc/CVV" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J6X-cP-kex">
                     <rect key="frame" x="366" y="563" width="91" height="21"/>
@@ -232,7 +252,7 @@
                     </connections>
                 </segmentedControl>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YWJ-lr-MW9">
-                    <rect key="frame" x="528" y="99" width="189" height="62"/>
+                    <rect key="frame" x="528" y="136" width="189" height="62"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <state key="normal" title="Search/Connect Bluetooth">
@@ -272,9 +292,12 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <action selector="DoKeyboardOff:" destination="-1" eventType="editingDidEndOnExit" id="F3w-5n-5zm"/>
+                    </connections>
                 </textField>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6XG-fI-rr6">
-                    <rect key="frame" x="528" y="178" width="189" height="61"/>
+                    <rect key="frame" x="528" y="210" width="189" height="61"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <state key="normal" title="Disconnect Bluetooth">
@@ -325,8 +348,61 @@
                     <rect key="frame" x="239" y="97" width="49" height="31"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </switch>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fWy-6c-yfK">
+                    <rect key="frame" x="27" y="634" width="143" height="59"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <state key="normal" title="Start Reader Loop">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="15"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="f_loopTest:" destination="-1" eventType="touchUpInside" id="KPR-Qd-iWk"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zmf-v0-NNl">
+                    <rect key="frame" x="178" y="634" width="150" height="59"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <state key="normal" title="Cancel Reader Loop">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="15"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="f_cancelLoopTest:" destination="-1" eventType="touchUpInside" id="nBu-Uc-AcR"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Insert card into fully charged reader before loop test" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1YU-iN-Pnd">
+                    <rect key="frame" x="27" y="599" width="399" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cXv-Gb-xaU">
+                    <rect key="frame" x="345" y="653" width="46" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PKu-k5-JPK">
+                    <rect key="frame" x="494" y="99" width="234" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
-            <color key="backgroundColor" systemColor="systemGray6Color" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackOpaque"/>
             <userDefinedRuntimeAttributes>
                 <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
