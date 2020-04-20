@@ -235,6 +235,7 @@ static int _lcdDisplayMode = 0;
         runningTransaction = false;
         [self appendMessageToResults:[NSString stringWithFormat:@"Cancel transaction %@", clearentFeedback.message ]];
     }
+
     if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_USER_ACTION ){
         [self appendMessageToResults:[NSString stringWithFormat:@"USER: %@", clearentFeedback.message ]];
     } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_INFO ){
