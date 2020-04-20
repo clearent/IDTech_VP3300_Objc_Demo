@@ -234,8 +234,17 @@ static int _lcdDisplayMode = 0;
     if(clearentFeedback.returnCode > 0) {
         runningTransaction = false;
         [self appendMessageToResults:[NSString stringWithFormat:@"Cancel transaction %@", clearentFeedback.message ]];
-    } else {
-        [self appendMessageToResults:[NSString stringWithFormat:@"%@", clearentFeedback.message ]];
+    }
+    if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_USER_ACTION ){
+        [self appendMessageToResults:[NSString stringWithFormat:@"USER: %@", clearentFeedback.message ]];
+    } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_INFO ){
+        [self appendMessageToResults:[NSString stringWithFormat:@"INFO: %@", clearentFeedback.message ]];
+    } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_ERROR ){
+           [self appendMessageToResults:[NSString stringWithFormat:@"ERROR: %@", clearentFeedback.message ]];
+    } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_BLUETOOTH ){
+           [self appendMessageToResults:[NSString stringWithFormat:@"BLE: %@", clearentFeedback.message ]];
+    } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_TYPE_UNKNOWN ){
+           [self appendMessageToResults:[NSString stringWithFormat:@"UNKNOWN: %@", clearentFeedback.message ]];
     }
 
 }
