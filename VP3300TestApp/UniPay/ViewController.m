@@ -19,6 +19,7 @@ NSString *publicKey = @"307a301406072a8648ce3d020106092b240303020801010c03620004
 @synthesize lastFiveDigitsOfDeviceSerialNumber;
 @synthesize txtAmount;
 @synthesize txtReceiptEmailAddress;
+@synthesize alertImage;
 
 @synthesize txtCreditCardNumber;
 @synthesize txtExpirationDate;
@@ -74,6 +75,15 @@ int loopCount = 0;
 NSTimer *loopTimer;
 NSString *batteryLevelTime;
 
+UIImage *creditCardImage;
+UIImage *insertImage;
+UIImage *checkmarkImage;
+
+NSString *chimeFilePath;
+NSURL *chimeFileURL;
+NSString *popFilePath;
+NSURL *popFileURL;
+
 extern int g_IOS_Type;
 
 -(void) appendMessageToResults:(NSString*) message{
@@ -87,8 +97,17 @@ extern int g_IOS_Type;
 }
 
 - (IBAction) DoClearLog:(id)sender{
+    
+    [self clearLog];
+    
+}
+
+- (void) clearLog {
+    
     [self.resultsTextView setText: @""];
+    
     [self.resultsTextView scrollRangeToVisible:NSMakeRange([self.resultsTextView.text length], 0)];
+    
 }
 
 //for return IDTResult type function
@@ -209,6 +228,8 @@ static int _lcdDisplayMode = 0;
     connectedLabel.text = @"Disconnected";
     connectedLabel.backgroundColor = UIColor.lightGrayColor;
     batteryLevelLabel.text = @"";
+    
+    [self disableCardImage];
 }
 
 -(void) eventFunctionICC: (Byte) nICC_Attached{
@@ -235,15 +256,21 @@ static int _lcdDisplayMode = 0;
         runningTransaction = false;
         [self appendMessageToResults:[NSString stringWithFormat:@"Cancel transaction %@", clearentFeedback.message ]];
     }
-
+    
+    if([clearentFeedback.message containsString:@"PLEASE SWIPE, TAP, OR INSERT"]) {
+        [self transitionCardImageToInsertImage];
+    }
+    
     if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_USER_ACTION ){
-        [self appendMessageToResults:[NSString stringWithFormat:@"USER: %@", clearentFeedback.message ]];
+        [self playPop];
+        [self appendMessageToResults:[NSString stringWithFormat:@"🟢 %@", clearentFeedback.message ]];
     } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_INFO ){
-        [self appendMessageToResults:[NSString stringWithFormat:@"INFO: %@", clearentFeedback.message ]];
+        [self appendMessageToResults:[NSString stringWithFormat:@" %@", clearentFeedback.message ]];
     } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_ERROR ){
-           [self appendMessageToResults:[NSString stringWithFormat:@"ERROR: %@", clearentFeedback.message ]];
+           [self disableCardImage];
+           [self appendMessageToResults:[NSString stringWithFormat:@"👎 %@", clearentFeedback.message ]];
     } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_BLUETOOTH ){
-           [self appendMessageToResults:[NSString stringWithFormat:@"BLE: %@", clearentFeedback.message ]];
+           [self appendMessageToResults:[NSString stringWithFormat:@" %@", clearentFeedback.message ]];
     } else if(clearentFeedback.feedBackMessageType == CLEARENT_FEEDBACK_TYPE_UNKNOWN ){
            [self appendMessageToResults:[NSString stringWithFormat:@"UNKNOWN: %@", clearentFeedback.message ]];
     }
@@ -396,7 +423,7 @@ static int _lcdDisplayMode = 0;
        
     clearentVP3300 = [[Clearent_VP3300 alloc] initWithConnectionHandling:self clearentVP3300Configuration:clearentVP3300Config];
        
-    clearentManualEntry = [clearentManualEntry init:self clearentBaseUrl:baseUrl publicKey:publicKey];
+    clearentManualEntry = [[ClearentManualEntry alloc] init:self clearentBaseUrl:baseUrl publicKey:publicKey];
 }
 
 - (void) initClearentVP3300Config {
@@ -434,6 +461,150 @@ static int _lcdDisplayMode = 0;
     self.searchBluetooth.on = false;
     self.bluetoothConnectToFirstFound.on = false;
     
+    creditCardImage = [UIImage imageNamed:@"credit-card-icon-png-1"];
+    
+    checkmarkImage = [UIImage imageNamed:@"checkmark"];
+    insertImage = [UIImage imageNamed:@"insertcard"];
+   
+    [alertImage setContentMode:UIViewContentModeScaleAspectFit];
+
+    NSArray * imageArray  = [[NSArray alloc] initWithObjects:
+    creditCardImage,
+    insertImage,
+    checkmarkImage,
+    nil];
+    
+   // alertImage.animationImages = imageArray;
+    
+    [self disableCardImage];
+    
+    chimeFilePath = [[NSBundle mainBundle] pathForResource:@"chime" ofType:@"mp3"];
+    chimeFileURL = [NSURL fileURLWithPath:chimeFilePath];
+    
+    NSError *error;
+    
+    self.chimeAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:chimeFileURL error:&error];
+    
+    popFilePath = [[NSBundle mainBundle] pathForResource:@"pop" ofType:@"m4a"];
+    popFileURL = [NSURL fileURLWithPath:popFilePath];
+       
+    NSError *popError;
+       
+    self.popAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:popFileURL error:&popError];
+    
+}
+
+- (void) playChime {
+    [self.chimeAudioPlayer play];
+}
+
+- (void) playPop {
+    [self.popAudioPlayer play];
+}
+
+
+- (void) startCardImage {
+    
+    if ([NSThread isMainThread])
+    {
+        [self showCardImage];
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            //Update UI in UI thread here
+            [self showCardImage];
+        });
+    }
+    
+}
+
+- (void) showCardImage {
+    [UIView transitionWithView:alertImage
+      duration:0.5f
+       options:UIViewAnimationOptionTransitionCrossDissolve
+    animations:^{
+        self.alertImage.image = creditCardImage;
+    } completion:nil];
+}
+
+- (void) disableCardImage {
+    
+    if ([NSThread isMainThread])
+    {
+        [self transitionCardImageToDisappear];
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            //Update UI in UI thread here
+            [self transitionCardImageToDisappear];
+        });
+    }
+    
+}
+
+- (void) transitionCardImageToDisappear {
+    
+    [UIView transitionWithView:alertImage
+      duration:0.75f
+       options:UIViewAnimationOptionTransitionCrossDissolve
+    animations:^{
+        self.alertImage.image = nil;
+    } completion:nil];
+}
+
+- (void) cardImageToInsertImage {
+    
+    if ([NSThread isMainThread])
+    {
+        [self transitionCardImageToInsertImage];
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            //Update UI in UI thread here
+            [self transitionCardImageToDisappear];
+        });
+    }
+    
+}
+
+- (void) transitionCardImageToInsertImage {
+    
+    [UIView transitionWithView:alertImage
+      duration:0.75f
+       options:UIViewAnimationOptionTransitionCrossDissolve
+    animations:^{
+        self.alertImage.image = insertImage;
+    } completion:nil];
+}
+
+
+- (void) cardImageToCheckmark {
+    
+     if ([NSThread isMainThread])
+       {
+           [self transitionCardImageToCheckMark];
+       }
+       else
+       {
+           dispatch_sync(dispatch_get_main_queue(), ^{
+               //Update UI in UI thread here
+               [self transitionCardImageToCheckMark];
+           });
+       }
+}
+
+- (void) transitionCardImageToCheckMark {
+    
+    [UIView transitionWithView:alertImage
+            duration:0.75f
+             options:UIViewAnimationOptionTransitionCrossDissolve
+          animations:^{
+        self.alertImage.image = checkmarkImage;
+          } completion:nil];
+    [self playChime];
 }
 
 -(void) exampleManualEntry {
@@ -467,6 +638,7 @@ static int _lcdDisplayMode = 0;
     NSLog(@"%@",clearentTransactionToken.lastFour);
     NSLog(@"%@",clearentTransactionToken.trackDataHash);
     NSLog(@"%@",clearentTransactionToken.cardType);
+    
     [self exampleUseJwtToRunPaymentTransaction:clearentTransactionToken.jwt];
 }
 
@@ -536,6 +708,7 @@ static int _lcdDisplayMode = 0;
                   [self exampleRequestReceipt:transactionId];
               } else {
                   runningTransaction = false;
+                  [self cardImageToCheckmark];
               }
           } else {
               NSString *errorResult;
@@ -572,6 +745,7 @@ static int _lcdDisplayMode = 0;
                   }
               }
               runningTransaction = false;
+        [self cardImageToCheckmark];
         
       } ] resume];
 }
@@ -676,6 +850,7 @@ static int _lcdDisplayMode = 0;
 
           }
           runningTransaction = false;
+        
       }] resume];
 }
 
@@ -789,7 +964,7 @@ static int _lcdDisplayMode = 0;
 #pragma mark - spec methods
 
 - (IBAction) f_manualEntry:(id)sender{
-    
+   // [self startCardImage];
     [self exampleManualEntry];
     
 }
@@ -802,13 +977,11 @@ static int _lcdDisplayMode = 0;
 
 - (IBAction) f_cancelTrans: (id) sender {
     
+    [self disableCardImage];
+    
     RETURN_CODE rt = [clearentVP3300  device_cancelTransaction];
     
-    if (RETURN_CODE_DO_SUCCESS == rt) {
-        [self appendMessageToResults:@"Cancel Transaction Successful"];
-    } else {
-        [self displayUpRet2: @"Cancel Transaction Failed " returnValue: rt];
-    }
+    [self clearLog];
     
 }
 
@@ -897,6 +1070,8 @@ static int _lcdDisplayMode = 0;
     
     clearentConnection = [self createClearentConnection];
     
+    [self startCardImage];
+    
     ClearentResponse *clearentResponse = [clearentVP3300 startTransaction:clearentPayment clearentConnection:clearentConnection];
 
     //If an error is returned here it means the transaction should be retried. The feedback callback should get all types of feedback, user actions, informational,
@@ -971,6 +1146,8 @@ static int _lcdDisplayMode = 0;
             }
         }
     }
+    
+    //clearentConnection.bluetoothAdvertisingInterval = CLEARENT_BLUETOOTH_ADVERTISING_INTERVAL_60_MS;
     
     //clearentConnection.bluetoothMaximumScanInSeconds = 60;
     

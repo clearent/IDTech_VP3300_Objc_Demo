@@ -14,7 +14,8 @@
 UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDelegate, UIPickerViewDelegate, UIPickerViewDataSource>
 
 {
-     IBOutlet UILabel *loopCountLabel;
+    IBOutlet UIImageView *alertImage;
+    IBOutlet UILabel *loopCountLabel;
     IBOutlet UITextView *resultsTextView;
     IBOutlet UILabel *searchBluetoothLabel;
     IBOutlet UILabel *connectedLabel;
@@ -57,6 +58,8 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 }
 
 @property(nonatomic, strong) UITextView *resultsTextView;
+@property(nonatomic, strong) UIImageView *alertImage;
+
 @property(nonatomic, strong) UILabel *loopCountLabel;
 @property(nonatomic, strong) UILabel *connectedLabel;
 @property(nonatomic, strong) UILabel *searchBluetoothLabel;
@@ -96,6 +99,10 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 @property(nonatomic, strong) UIButton *cancelLoopTest;
 
 @property(nonatomic, strong) UILabel *batteryLevelLabel;
+
+@property (strong) AVAudioPlayer *chimeAudioPlayer;
+
+@property (strong) AVAudioPlayer *popAudioPlayer;
 
 - (IBAction) f_cancelTrans:(id)sender;
 - (IBAction) DoKeyboardOff:(id)sender;
