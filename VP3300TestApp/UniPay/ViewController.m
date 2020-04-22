@@ -20,7 +20,8 @@ NSString *publicKey = @"307a301406072a8648ce3d020106092b240303020801010c03620004
 @synthesize txtAmount;
 @synthesize txtReceiptEmailAddress;
 @synthesize alertImage;
-
+@synthesize readerInterfaceMode;
+@synthesize readerInterfaceModeSelect;
 @synthesize txtCreditCardNumber;
 @synthesize txtExpirationDate;
 @synthesize txtCsc;
@@ -903,6 +904,20 @@ static int _lcdDisplayMode = 0;
     }
 }
 
+- (IBAction) readerInterfaceModeChanged: (id) sender {
+    
+    switch (readerInterfaceModeSelect.selectedSegmentIndex) {
+    case 0:
+        //TODO
+        break;
+    case 1:
+       //TODO
+        break;
+    default:
+        break;
+    }
+}
+
 - (IBAction) readerUsageChanged: (id) sender {
     
     switch (readerUsage.selectedSegmentIndex) {
@@ -1121,6 +1136,12 @@ static int _lcdDisplayMode = 0;
         clearentConnection =  [[ClearentConnection alloc] initBluetoothFirstConnect];
     } else {
         clearentConnection =  [[ClearentConnection alloc] initAudioJack];
+    }
+    
+    if(readerInterfaceModeSelect.selectedSegmentIndex == 0) {
+        clearentConnection.readerInterfaceMode = CLEARENT_READER_INTERFACE_3_IN_1;
+    } else {
+        clearentConnection.readerInterfaceMode = CLEARENT_READER_INTERFACE_2_IN_1;
     }
     
     if(bluetoothConnectToFirstFound.on) {

@@ -15,6 +15,7 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 
 {
     IBOutlet UIImageView *alertImage;
+    IBOutlet UILabel *readerInterfaceMode;
     IBOutlet UILabel *loopCountLabel;
     IBOutlet UITextView *resultsTextView;
     IBOutlet UILabel *searchBluetoothLabel;
@@ -32,7 +33,7 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
     IBOutlet UITextField *txtCsc;
     IBOutlet UISegmentedControl *connectionTypeSelect;
     IBOutlet UISegmentedControl *readerUsage;
-    
+    IBOutlet UISegmentedControl *readerInterfaceModeSelect;
     IBOutlet UILabel *bluetoothFriendlyNameLabel;
     IBOutlet UILabel *lastFiveDigitsOfDeviceSerialNumberLabel;
     IBOutlet UILabel *bluetoothConnectToFirstFoundLabel;
@@ -59,7 +60,7 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 
 @property(nonatomic, strong) UITextView *resultsTextView;
 @property(nonatomic, strong) UIImageView *alertImage;
-
+@property(nonatomic, strong) UILabel *readerInterfaceMode;
 @property(nonatomic, strong) UILabel *loopCountLabel;
 @property(nonatomic, strong) UILabel *connectedLabel;
 @property(nonatomic, strong) UILabel *searchBluetoothLabel;
@@ -80,6 +81,7 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 @property(nonatomic, strong) UITextField *txtCsc;
 @property(nonatomic, strong) UISegmentedControl *connectionTypeSelect;
 @property(nonatomic, strong) UISegmentedControl *readerUsage;
+@property(nonatomic, strong) UISegmentedControl *readerInterfaceModeSelect;
 @property(nonatomic, strong) UILabel *bluetoothFriendlyNameLabel;
 @property(nonatomic, strong) UILabel *lastFiveDigitsOfDeviceSerialNumberLabel;
 @property(nonatomic, strong) UILabel *bluetoothConnectToFirstFoundLabel;
@@ -109,6 +111,7 @@ UIActionSheetDelegate,MFMailComposeViewControllerDelegate,ClearentManualEntryDel
 - (IBAction) f_startAnyTransaction:(id)sender;
 - (IBAction) f_manualEntry:(id)sender;
 - (IBAction) connectionTypeChanged:(id)sender;
+- (IBAction) readerInterfaceModeChanged:(id)sender;
 - (IBAction) readerUsageChanged:(id)sender;
 
 - (IBAction) f_loopTest:(id)sender;
