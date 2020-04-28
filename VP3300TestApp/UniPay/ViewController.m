@@ -146,13 +146,13 @@ extern int g_IOS_Type;
 #pragma mark - VP3300 Delegate methods
 static int _lcdDisplayMode = 0;
 
-- (void) lcdDisplay:(int)mode  lines:(NSArray*)lines{
-//deprecated
-}
+//- (void) lcdDisplay:(int)mode  lines:(NSArray*)lines{
+////deprecated
+//}
 
-- (void) dataInOutMonitor:(NSData*)data  incoming:(BOOL)isIncoming{
-    NSLog([NSString stringWithFormat:@"DATA INOUT %@: %@",isIncoming?@"IN":@"OUT",data.description]);
-}
+//- (void) dataInOutMonitor:(NSData*)data  incoming:(BOOL)isIncoming{
+//    NSLog([NSString stringWithFormat:@"DATA INOUT %@: %@",isIncoming?@"IN":@"OUT",data.description]);
+//}
 
 - (void) plugStatusChange:(BOOL)deviceInserted{
     if (deviceInserted) {
@@ -171,10 +171,10 @@ static int _lcdDisplayMode = 0;
     }
 }
 
--(void)isReady{
+//-(void)isReady{
     //connectedLabel.text = @"READY";
     //connectedLabel.backgroundColor = UIColor.systemGreenColor;
-}
+//}
 
 -(void) beepbeep {
     NSData* response;
@@ -245,11 +245,11 @@ static int _lcdDisplayMode = 0;
 }
 
 //deprecated..
-- (void) deviceMessage:(NSString*) message {
-    
-    NSLog([NSString stringWithFormat:@"DEVICEMESSAGE %@", message ]);
-    
-}
+//- (void) deviceMessage:(NSString*) message {
+//
+//    NSLog([NSString stringWithFormat:@"DEVICEMESSAGE %@", message ]);
+//
+//}
 
 - (void) feedback:(ClearentFeedback *)clearentFeedback {
     
@@ -626,14 +626,13 @@ static int _lcdDisplayMode = 0;
     return clearentCard;
 }
  
--(void) successfulTransactionToken:(NSString*) jsonString {
-    //deprecated
-    NSLog(@"%@", jsonString);
-    
-}
+//-(void) successfulTransactionToken:(NSString*) jsonString {
+//    //deprecated
+//    NSLog(@"%@", jsonString);
+//    
+//}
 
 - (void) successTransactionToken:(ClearentTransactionToken*) clearentTransactionToken {
-    [self appendMessageToResults:@"A Clearent Transaction Token (JWT) has been created. Running sample transaction..."];
     NSLog(@"%@",clearentTransactionToken.jwt);
     NSLog(@"%@",clearentTransactionToken.cvm);
     NSLog(@"%@",clearentTransactionToken.lastFour);
