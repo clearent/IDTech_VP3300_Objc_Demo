@@ -144,11 +144,18 @@ extern int g_IOS_Type;
 }
 
 #pragma mark - VP3300 Delegate methods
+
 static int _lcdDisplayMode = 0;
 
-//- (void) lcdDisplay:(int)mode  lines:(NSArray*)lines{
-////deprecated
-//}
+- (void) lcdDisplay:(int)mode  lines:(NSArray*)lines{
+//    NSMutableString* str = [NSMutableString new];
+//    if (lines != nil) {
+//        for (NSString* s in lines) {
+//            [self appendMessageToResults:[NSString stringWithFormat:@"LCD %@", s ]];
+//            [self appendMessageToResults:@"\n"];
+//        }
+//    }
+}
 
 //- (void) dataInOutMonitor:(NSData*)data  incoming:(BOOL)isIncoming{
 //    NSLog([NSString stringWithFormat:@"DATA INOUT %@: %@",isIncoming?@"IN":@"OUT",data.description]);
@@ -220,6 +227,7 @@ static int _lcdDisplayMode = 0;
     connectedLabel.text = @"Connected";
     connectedLabel.backgroundColor = UIColor.systemGreenColor;
     
+    NSLog(clearentVP3300.SDK_version);
    // [self getLowBatteryLevelTime];
     
 }
@@ -255,7 +263,6 @@ static int _lcdDisplayMode = 0;
     
     if(clearentFeedback.returnCode > 0) {
         runningTransaction = false;
-        [self appendMessageToResults:[NSString stringWithFormat:@"Cancel transaction %@", clearentFeedback.message ]];
     }
     
     if([clearentFeedback.message containsString:@"PLEASE SWIPE, TAP, OR INSERT"]) {
@@ -484,23 +491,23 @@ static int _lcdDisplayMode = 0;
     
     NSError *error;
     
-    self.chimeAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:chimeFileURL error:&error];
+    //self.chimeAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:chimeFileURL error:&error];
     
     popFilePath = [[NSBundle mainBundle] pathForResource:@"pop" ofType:@"m4a"];
     popFileURL = [NSURL fileURLWithPath:popFilePath];
        
     NSError *popError;
        
-    self.popAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:popFileURL error:&popError];
+    //self.popAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:popFileURL error:&popError];
     
 }
 
 - (void) playChime {
-    [self.chimeAudioPlayer play];
+   // [self.chimeAudioPlayer play];
 }
 
 - (void) playPop {
-    [self.popAudioPlayer play];
+   // [self.popAudioPlayer play];
 }
 
 
@@ -1114,6 +1121,8 @@ static int _lcdDisplayMode = 0;
     //you can pass a zero. This is only for creating the transation token (jwt). When you run the payment through the mobile gateway endpoint you will need to provide an
     //amount.
     [clearentPayment setAmount:[self getAmount]];
+    
+    [clearentPayment setTimeout:60];
     
     //The email address is an optional field because credit card certification states you are suppose to print a receipt for the customer if there is an offline
     //decline. In this case we will email them a recent.

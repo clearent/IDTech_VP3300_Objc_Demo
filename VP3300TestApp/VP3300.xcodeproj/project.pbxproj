@@ -368,7 +368,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = NO;
-				FRAMEWORK_SEARCH_PATHS = "/Users/randy/Library/Developer/Xcode/DerivedData/IDTech-fozocbjwklonnqbldqnrapgyptvp/Build/Products/Debug-iphoneos/";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -419,7 +419,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "/Users/randy/Library/Developer/Xcode/DerivedData/IDTech-fozocbjwklonnqbldqnrapgyptvp/Build/Products/Debug-iphoneos/";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -449,6 +449,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2.0.12;
 				DEVELOPMENT_TEAM = PY4645385H;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -467,10 +468,11 @@
 					"$(PROJECT_DIR)/UniPay",
 					"$(PROJECT_DIR)/ClearentIdtechIOSFramework/test/libraries",
 				);
+				MARKETING_VERSION = 2.0.12;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.clearent.vp3300demo20;
+				PRODUCT_BUNDLE_IDENTIFIER = com.clearent.vp3300demo22;
 				PRODUCT_NAME = "IDTECH DEMO V2";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -490,6 +492,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2.0.12;
 				DEVELOPMENT_TEAM = PY4645385H;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -508,10 +511,11 @@
 					"$(PROJECT_DIR)/UniPay",
 					"$(PROJECT_DIR)/ClearentIdtechIOSFramework/test/libraries",
 				);
+				MARKETING_VERSION = 2.0.12;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.clearent.vp3300demo20;
+				PRODUCT_BUNDLE_IDENTIFIER = com.clearent.vp3300demo22;
 				PRODUCT_NAME = "IDTECH DEMO V2";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
