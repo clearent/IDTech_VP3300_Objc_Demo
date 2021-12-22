@@ -646,11 +646,19 @@ static int _lcdDisplayMode = 0;
     NSLog(@"%@",clearentTransactionToken.trackDataHash);
     NSLog(@"%@",clearentTransactionToken.cardType);
     
+    NSLog(@"Set the public Key just to prove the new method works");
+    [clearentVP3300 setPublicKey:publicKey];
+    
     [self exampleUseJwtToRunPaymentTransaction:clearentTransactionToken.jwt];
 }
 
 
 - (void) exampleUseJwtToRunPaymentTransaction:(NSString*)jwt {
+    NSLog(@"Send Remote logs now");
+    [clearentVP3300 sendRemoteLogs];
+    
+    [clearentVP3300 addRemoteLogRequest:@"VP3300 Demo" message:@"Run Sale"];
+    
     NSLog(@"%@Run the transaction...",jwt);
     //Construct the url
     NSString *targetUrl;
@@ -1163,6 +1171,8 @@ static int _lcdDisplayMode = 0;
     } else {
         clearentConnection.searchBluetooth = false;
     }
+    
+    clearentConnection.bluetoothMaximumScanInSeconds = 20;
     
     NSString *enteredBluetoothFriendlyName = [bluetoothFriendlyName text];
     

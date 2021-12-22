@@ -1569,6 +1569,15 @@ If you did not instruct the framework to do any configuration when you initializ
  */
 - (void) clearBluetoothDeviceCache;
 
+/**
+ *  Remote logs are delayed. if you want to send them immediately call this.
+ */
+- (void) sendRemoteLogs;
+
+/**
+ *  if you've created  a Clearent_VP3300 object and just want to change the publicKey for a given Merchant you set the public key
+ */
+-(void) setPublicKey:(NSString*)publicKey;
 
 @end
 

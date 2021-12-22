@@ -74,8 +74,6 @@ typedef enum {SWIPE=90} supportedNonEmvEntryMode;
 
 - (NSString *) getFirmwareVersion;
 
-- (void) resetInvalidDeviceData;
-
 /**
  The reader has a contactless configuration applied each time connects. After a successful configuration the device serial number and a flag denoting the reader was configured for contactless is stored using NSUserDefaults. If there is a need to clear out this information, maybe to support a configuration change/future updates, call this method to clear out the cache.
  */
@@ -128,6 +126,8 @@ During a Contactless transaction, if events are enabled, they will be sent to th
 - (void) startFinalFeedbackMonitor:(int) timeout;
 
 - (void) disableCardRemovalTimer;
+
+- (void) updatePublicKey:(NSString *)publicKey;
 
 @end
 
