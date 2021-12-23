@@ -1,5 +1,9 @@
 # iOS SDK Changelog
 
+## 1.1.166.015
+### 12/22/21
+Added fix to allow methods to execute properly within device connected callback
+
 ## 1.1.166.014
 ### 12/3/21
 Reset centralManager to nil for enableBLEDeviceSearch to correctly re-init second attempt
